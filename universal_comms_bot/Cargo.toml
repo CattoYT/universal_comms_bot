@@ -1,0 +1,11 @@
+[package]
+name = "universal_comms_bot"
+version = "0.1.0"
+edition = "2024"
+default-run = "universal_comms_bot"
+
+[dependencies]
+
+crossbeam = "0.8.4"
+windows-capture = "1.5.0"
+

@@ -1,0 +1,26 @@
+
+
+[workspace.dependencies]
+crossbeam = "0.8.4"
+windows-capture = "1.5.0"
+
+
+[workspace]
+members = [
+    "universal_comms_bot",
+    "processor_binary", 
+    "processor_shared"
+
+]
+
+# [[bin]]
+# name = "universal_comms_bot_clientside"
+# path = "clientside/src/main.rs"
+
+# [[bin]]
+# name = "universal_comms_bot_processor"
+# path = "processor_binary/src/main.rs"
+
+# [lib]
+# name = "foo"           # The name of the target.
+# path = "processor_shared/src/lib.rs"    # The source file of the target.

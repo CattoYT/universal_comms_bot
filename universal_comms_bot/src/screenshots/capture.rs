@@ -1,0 +1,110 @@
+use std::{
+    thread::{self, JoinHandle}, time::{Duration, Instant}
+};
+
+use crossbeam::channel::{unbounded, Receiver, Sender};
+use windows_capture::{
+    capture::{CaptureControl, Context, GraphicsCaptureApiHandler},
+    frame::Frame,
+    graphics_capture_api::InternalCaptureControl,
+    monitor::Monitor,
+    settings::{
+        CursorCaptureSettings, DirtyRegionSettings, DrawBorderSettings,
+        MinimumUpdateIntervalSettings, SecondaryWindowSettings, Settings,
+    },
+};
+
+use crate::screenshots::frame::{self, FrameData};
+
+
+
+pub struct Capture {
+
+    start: Instant,
+
+    sender: Sender<FrameData>,
+
+    receive_queue: Receiver<FrameData>
+
+}
+
+
+
+impl GraphicsCaptureApiHandler for Capture {
+    type Flags = String;
+
+    // The type of error that can be returned from `CaptureControl` and `start`
+    // functions.
+    type Error = Box<dyn std::error::Error + Send + Sync>;
+
+    // Function that will be called to create a new instance. The flags can be
+    // passed from settings.
+    fn new(ctx: Context<Self::Flags>) -> Result<Self, Self::Error> {
+        println!("Created with Flags: {}", ctx.flags);
+
+
+        let (send, recv) = unbounded();
+
+
+        Ok(Self {
+            start: Instant::now(),
+            sender: send,
+            receive_queue: recv
+        }
+        
+    )
+        
+    }
+
+    fn on_frame_arrived(
+        &mut self,
+        frame: &mut Frame,
+        _capture_control: InternalCaptureControl,
+    ) -> Result<(), Self::Error> {
+        // Send the frame to the video encoder
+        // self.encoder.as_mut().unwrap().send_frame(frame)?;
+
+        // Note: The frame has other uses too, for example, you can save a single frame
+        // to a file, like this: frame.save_as_image("frame.png", ImageFormat::Png)?;
+        // Or get the raw data like this so you have full
+        // control: let data = frame.buffer()?;
+        let mut binding = frame.buffer()?;
+        let data = binding.as_raw_buffer();
+        let frame_data: frame::FrameData = FrameData::new(data.to_vec(), frame.height(), frame.width());
+        
+
+
+        self.sender.send(frame_data).map_err(|e| Box::new(e) as Self::Error)
+        
+
+        
+    }
+
+    fn on_closed(&mut self) -> Result<(), Self::Error> {
+        println!("Ran for {}", self.start.elapsed().as_secs());
+        Ok(())
+    }
+}
+
+pub fn spawn_screenshotting_thread() -> CaptureControl<Capture, Box<dyn std::error::Error + Send + Sync>> {
+    
+    let settings = Settings::new(
+        Monitor::primary().expect("There is no primary monitor"),
+        CursorCaptureSettings::Default,
+        DrawBorderSettings::WithoutBorder,
+        SecondaryWindowSettings::Exclude,
+        MinimumUpdateIntervalSettings::Custom(Duration::from_millis(67)),
+        DirtyRegionSettings::Default,
+        windows_capture::settings::ColorFormat::Rgba8,
+        "".to_string(),
+    );
+
+    
+    
+                
+    Capture::start_free_threaded(settings).unwrap()
+
+    
+    
+    
+}
