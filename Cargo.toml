@@ -4,7 +4,6 @@
 crossbeam = "0.8.4"
 windows-capture = "1.5.0"
 
-
 [workspace]
 members = [
     "universal_comms_bot",

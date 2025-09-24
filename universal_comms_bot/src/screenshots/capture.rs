@@ -31,7 +31,7 @@ pub struct Capture {
 
 
 impl GraphicsCaptureApiHandler for Capture {
-    type Flags = String;
+    type Flags = Sender<FrameData>;
 
     // The type of error that can be returned from `CaptureControl` and `start`
     // functions.
@@ -40,11 +40,11 @@ impl GraphicsCaptureApiHandler for Capture {
     // Function that will be called to create a new instance. The flags can be
     // passed from settings.
     fn new(ctx: Context<Self::Flags>) -> Result<Self, Self::Error> {
-        println!("Created with Flags: {}", ctx.flags);
+        println!("Created with Flags: {:?}", ctx.flags);
 
 
         let (send, recv) = unbounded();
-
+        
 
         Ok(Self {
             start: Instant::now(),
@@ -86,8 +86,9 @@ impl GraphicsCaptureApiHandler for Capture {
     }
 }
 
-pub fn spawn_screenshotting_thread() -> CaptureControl<Capture, Box<dyn std::error::Error + Send + Sync>> {
-    
+pub fn spawn_screenshotting_thread() -> (Receiver<FrameData>, CaptureControl<Capture, Box<dyn std::error::Error + Send + Sync>>) {
+    let (send, recv) = unbounded();
+
     let settings = Settings::new(
         Monitor::primary().expect("There is no primary monitor"),
         CursorCaptureSettings::Default,
@@ -96,15 +97,13 @@ pub fn spawn_screenshotting_thread() -> CaptureControl<Capture, Box<dyn std::err
         MinimumUpdateIntervalSettings::Custom(Duration::from_millis(67)),
         DirtyRegionSettings::Default,
         windows_capture::settings::ColorFormat::Rgba8,
-        "".to_string(),
+        send.clone(),
     );
 
     
-    
+    // let capturer: Result<Capture, Box<dyn Error + Send + Sync>> = Capture::new(settings);
                 
-    Capture::start_free_threaded(settings).unwrap()
-
+    let capture_thread = Capture::start_free_threaded(settings).unwrap();
     
-    
-    
+    (recv, capture_thread)
 }

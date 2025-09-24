@@ -12,8 +12,11 @@ fn main() {
     
 
 
-    let screenshot_controller = screenshots::capture::spawn_screenshotting_thread();
+    let (recv, screenshot_controller) = screenshots::capture::spawn_screenshotting_thread();
 
-    
+    loop {
+        let frame_data = recv.recv().unwrap();
+      
+    }
 
 }

@@ -1,7 +1,7 @@
 pub struct FrameData {
-    raw_buffer: Vec<u8>,
-    height: u32,
-    width: u32,
+    pub raw_buffer: Vec<u8>,
+    pub height: u32,
+    pub width: u32,
 }
 
 impl FrameData {
