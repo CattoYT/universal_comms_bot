@@ -7,7 +7,6 @@ pub fn add(left: u64, right: u64) -> u64 {
 }
 
 pub fn convert_image_data(height: u32, width: u32, data: Vec<u8>) -> Result<Mat, Error> {
-    // println!("{:?}", data);
     let binding = Mat::from_slice(&data).unwrap();
     let a = binding.reshape(4, height as i32);
 
@@ -15,6 +14,7 @@ pub fn convert_image_data(height: u32, width: u32, data: Vec<u8>) -> Result<Mat,
     
     match a {
         Ok(mat) => {
+            // couldnt figure out for the life of me why this didnt work properly
             let mut mat_bgra = Mat::default();
             imgproc::cvt_color(&mat, &mut mat_bgra, imgproc::COLOR_RGBA2BGRA, 0, opencv::core::AlgorithmHint::ALGO_HINT_DEFAULT)?;
             Ok(mat_bgra)},
