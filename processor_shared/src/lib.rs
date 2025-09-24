@@ -1,24 +1,40 @@
-use opencv::{core::{Mat, Vector}, imgcodecs, Error};
+use std::os::raw::c_void;
+
+use opencv::{core::{Mat, MatTraitConst, Vector}, imgcodecs, imgproc, Error};
 
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
 pub fn convert_image_data(height: u32, width: u32, data: Vec<u8>) -> Result<Mat, Error> {
-    let a = Mat::new_rows_cols_with_data(
-        height as i32, width as i32, &data
-    );
+    // println!("{:?}", data);
+    let binding = Mat::from_slice(&data).unwrap();
+    let a = binding.reshape(4, height as i32);
+
+
+    
     match a {
-        Ok(mat) => Ok(mat.clone_pointee()),
-        Err(_) => Err(Error {code: 1, message: "Failed to convert image data".to_string()})
+        Ok(mat) => {
+            let mut mat_bgra = Mat::default();
+            imgproc::cvt_color(&mat, &mut mat_bgra, imgproc::COLOR_RGBA2BGRA, 0, opencv::core::AlgorithmHint::ALGO_HINT_DEFAULT)?;
+            Ok(mat_bgra)},
+        Err(e) => {
+            println!("{e}");
+            
+            Err(Error {code: 1, message: "Failed to convert image data".to_string()})}
     }
+
 }
 
 pub fn save_as_image(mat: Mat) -> Result<(), Error> {
     if let Ok(_) = imgcodecs::imwrite(&"gray_image_cv2.png", &mat, &Vector::new()) {
-        ()
+        return Ok(())
     }
-    return Err(opencv::Error {code: 1, message: "Failed to save image data".to_string()})
+    else {
+            return Err(opencv::Error {code: 1, message: "Failed to save image data".to_string()})
+
+    }
+    
 
 
 

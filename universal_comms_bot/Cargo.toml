@@ -7,5 +7,5 @@ default-run = "universal_comms_bot"
 [dependencies]
 
 crossbeam = "0.8.4"
-windows-capture = "1.5.0"
+windows-capture = "2.0.0-alpha.1"
 processor_shared = { path = "../processor_shared" }

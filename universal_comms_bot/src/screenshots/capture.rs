@@ -24,7 +24,6 @@ pub struct Capture {
 
     sender: Sender<FrameData>,
 
-    receive_queue: Receiver<FrameData>
 
 }
 
@@ -41,15 +40,12 @@ impl GraphicsCaptureApiHandler for Capture {
     // passed from settings.
     fn new(ctx: Context<Self::Flags>) -> Result<Self, Self::Error> {
         println!("Created with Flags: {:?}", ctx.flags);
-
-
-        let (send, recv) = unbounded();
         
+
 
         Ok(Self {
             start: Instant::now(),
-            sender: send,
-            receive_queue: recv
+            sender: ctx.flags,
         }
         
     )
@@ -73,10 +69,8 @@ impl GraphicsCaptureApiHandler for Capture {
         let frame_data: frame::FrameData = FrameData::new(data.to_vec(), frame.height(), frame.width());
         
 
-
         self.sender.send(frame_data).map_err(|e| Box::new(e) as Self::Error)
         
-
         
     }
 
@@ -93,8 +87,9 @@ pub fn spawn_screenshotting_thread() -> (Receiver<FrameData>, CaptureControl<Cap
         Monitor::primary().expect("There is no primary monitor"),
         CursorCaptureSettings::Default,
         DrawBorderSettings::WithoutBorder,
-        SecondaryWindowSettings::Exclude,
-        MinimumUpdateIntervalSettings::Custom(Duration::from_millis(67)),
+        SecondaryWindowSettings::Default,
+        // MinimumUpdateIntervalSettings::Custom(Duration::from_millis(67)),
+        MinimumUpdateIntervalSettings::Default,
         DirtyRegionSettings::Default,
         windows_capture::settings::ColorFormat::Rgba8,
         send.clone(),
