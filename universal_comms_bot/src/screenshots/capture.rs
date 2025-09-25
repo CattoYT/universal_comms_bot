@@ -1,5 +1,5 @@
 use std::{
-    thread::{self, JoinHandle}, time::{Duration, Instant}
+    thread::{self, sleep, JoinHandle}, time::{Duration, Instant}
 };
 
 use crossbeam::channel::{unbounded, Receiver, Sender};
@@ -69,9 +69,10 @@ impl GraphicsCaptureApiHandler for Capture {
         let frame_data: frame::FrameData = FrameData::new(data.to_vec(), frame.height(), frame.width());
         
 
-        self.sender.send(frame_data).map_err(|e| Box::new(e) as Self::Error)
+        let result = self.sender.send(frame_data).map_err(|e: crossbeam::channel::SendError<FrameData>| Box::new(e) as Self::Error);
         
-        
+        sleep(Duration::from_millis(33)); //improvised delay cuz the other one isnt supported?
+        result
     }
 
     fn on_closed(&mut self) -> Result<(), Self::Error> {

@@ -1,1 +1,1 @@
-mod enemy_map_detection;
+pub mod enemy_map_detection;
