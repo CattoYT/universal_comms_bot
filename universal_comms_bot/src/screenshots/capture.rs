@@ -1,8 +1,9 @@
 use std::{
-    thread::{self, sleep, JoinHandle}, time::{Duration, Instant}
+    thread::sleep,
+    time::{Duration, Instant},
 };
 
-use crossbeam::channel::{unbounded, Receiver, Sender};
+use crossbeam::channel::{Receiver, Sender, unbounded};
 use windows_capture::{
     capture::{CaptureControl, Context, GraphicsCaptureApiHandler},
     frame::Frame,
@@ -16,18 +17,11 @@ use windows_capture::{
 
 use crate::screenshots::frame::{self, FrameData};
 
-
-
 pub struct Capture {
-
     start: Instant,
 
     sender: Sender<FrameData>,
-
-
 }
-
-
 
 impl GraphicsCaptureApiHandler for Capture {
     type Flags = Sender<FrameData>;
@@ -40,16 +34,11 @@ impl GraphicsCaptureApiHandler for Capture {
     // passed from settings.
     fn new(ctx: Context<Self::Flags>) -> Result<Self, Self::Error> {
         println!("Created with Flags: {:?}", ctx.flags);
-        
-
 
         Ok(Self {
             start: Instant::now(),
             sender: ctx.flags,
-        }
-        
-    )
-        
+        })
     }
 
     fn on_frame_arrived(
@@ -66,12 +55,16 @@ impl GraphicsCaptureApiHandler for Capture {
         // control: let data = frame.buffer()?;
         let mut binding = frame.buffer()?;
         let data = binding.as_raw_buffer();
-        let frame_data: frame::FrameData = FrameData::new(data.to_vec(), frame.height(), frame.width());
-        
+        let frame_data: frame::FrameData =
+            FrameData::new(data.to_vec(), frame.height(), frame.width());
 
-        let result = self.sender.send(frame_data).map_err(|e: crossbeam::channel::SendError<FrameData>| Box::new(e) as Self::Error);
-        
-        sleep(Duration::from_millis(33)); //improvised delay cuz the other one isnt supported?
+        let result = self
+            .sender
+            .send(frame_data)
+            .map_err(|e: crossbeam::channel::SendError<FrameData>| Box::new(e) as Self::Error);
+
+        sleep(Duration::from_millis(1000 / 60)); //improvised delay cuz the other one isnt supported?
+        // replace second value with desired frame rate
         result
     }
 
@@ -81,7 +74,10 @@ impl GraphicsCaptureApiHandler for Capture {
     }
 }
 
-pub fn spawn_screenshotting_thread() -> (Receiver<FrameData>, CaptureControl<Capture, Box<dyn std::error::Error + Send + Sync>>) {
+pub fn spawn_screenshotting_thread() -> (
+    Receiver<FrameData>,
+    CaptureControl<Capture, Box<dyn std::error::Error + Send + Sync>>,
+) {
     let (send, recv) = unbounded();
 
     let settings = Settings::new(
@@ -96,10 +92,9 @@ pub fn spawn_screenshotting_thread() -> (Receiver<FrameData>, CaptureControl<Cap
         send.clone(),
     );
 
-    
     // let capturer: Result<Capture, Box<dyn Error + Send + Sync>> = Capture::new(settings);
-                
+
     let capture_thread = Capture::start_free_threaded(settings).unwrap();
-    
+
     (recv, capture_thread)
 }

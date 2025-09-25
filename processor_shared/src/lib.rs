@@ -1,5 +1,3 @@
-use std::os::raw::c_void;
-
 use opencv::{
     Error,
     core::{Mat, MatTraitConst, Vector},
@@ -7,8 +5,7 @@ use opencv::{
 };
 pub mod league;
 
-
-pub fn convert_image_data(height: u32, width: u32, data: Vec<u8>) -> Result<Mat, Error> {
+pub fn convert_image_data(height: u32, data: Vec<u8>) -> Result<Mat, Error> {
     let binding = Mat::from_slice(&data).unwrap();
     let a = binding.reshape(4, height as i32);
 
@@ -53,7 +50,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        // TODO: Eventually write tests lol
     }
 }

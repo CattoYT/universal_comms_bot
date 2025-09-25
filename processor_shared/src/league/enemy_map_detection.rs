@@ -1,11 +1,10 @@
 use opencv::{
-    core::{in_range, Scalar, CV_64FC4}, highgui, imgcodecs::imread, prelude::*
+    core::{CV_64FC4, Scalar, in_range},
+    imgproc::rectangle,
+    prelude::*,
 };
-use opencv::core::Vec3b;
-use crate::save_as_image;
 
 type Error = opencv::error::Error;
-
 
 const fn opencv_bullshit_colour_from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Scalar {
     Scalar::new(blue as f64, green as f64, red as f64, alpha as f64)
@@ -27,8 +26,15 @@ pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
     )?; //atp masked image will only contain the white pixels of the enemy outlines
     // time to figure out logic regarding detection
 
-    
-    
+    rectangle(
+        &mut masked_image,
+        opencv::core::Rect::new(1628, 699, 8, 9),
+        opencv_bullshit_colour_from_rgba(0, 0, 0, 255),
+        0,
+        0,
+        0,
+    ).unwrap();
+
     Ok(masked_image)
 }
 
@@ -43,17 +49,14 @@ pub fn convert_to_enemy_red_map(image: &mut Mat) -> Result<(), Error> {
     )?; //atp masked image will only contain the white pixels of the enemy outlines
     // time to figure out logic regarding detection
 
-
-    
     Ok(())
 }
 
-
 #[cfg(test)]
 mod tests {
-    use opencv::imgcodecs::IMREAD_COLOR;
-
     use super::*;
+    use opencv::imgcodecs::IMREAD_COLOR;
+    use opencv::imgcodecs::imread;
 
     #[test]
     fn test_black_image() {
@@ -65,8 +68,6 @@ mod tests {
         match create_enemy_red_map(&image) {
             Ok(_) => println!("ok"),
             Err(e) => panic!("{e}"),
-           
-
         }
     }
 }

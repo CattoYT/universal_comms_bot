@@ -1,4 +1,4 @@
-// yeet it into processor_shared
+// yeet it into network
 
 fn send_to_network() -> Result{
 
