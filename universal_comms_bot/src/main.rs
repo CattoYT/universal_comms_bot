@@ -23,13 +23,15 @@ fn main() {
             // continue;
             panic!()
         };
-        if let Ok(masked_img) = processor_shared::league::enemy_map_detection::convert_to_enemy_red_map(&mut frame) {
-            highgui::imshow("Demo", &frame).unwrap();
-            let _ = highgui::wait_key(1);
-        }
-        
-        else {panic!()}        // let red_map = processor_shared::league::enemy_map_detection::create_enemy_red_map(&frame);
-        println!("{}", recv.len() as i32);
-        
+        match processor_shared::league::enemy_map_detection::convert_to_enemy_red_map(&mut frame) {
+            Ok(new_mat) => {
+                highgui::imshow("Demo", &new_mat).unwrap();
+                let _ = highgui::wait_key(1);
+            }
+            Err(e) => {
+                panic!("{e}");
+            }
+        } // let red_map = processor_shared::league::enemy_map_detection::create_enemy_red_map(&frame);
+        // println!("{}", recv.len() as i32);
     }
 }

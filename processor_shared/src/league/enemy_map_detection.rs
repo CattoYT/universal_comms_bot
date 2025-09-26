@@ -1,7 +1,10 @@
-
+use opencv::core::{AlgorithmHint, Point, Size, BORDER_CONSTANT, CV_32FC1, CV_32FC3, CV_8UC1};
 use opencv::{
-    core::{in_range, Scalar, CV_16U, CV_64FC4},
-    imgproc::{connected_components_with_algorithm, hough_circles, hough_circles_def, rectangle, HOUGH_GRADIENT, HOUGH_GRADIENT_ALT},
+    core::{ALGO_HINT_DEFAULT, CV_16U, CV_64FC4, Point2d, Point2f, Scalar, Vector, in_range},
+    imgproc::{
+        self, HOUGH_GRADIENT, HOUGH_GRADIENT_ALT, connected_components_with_algorithm,
+        hough_circles, hough_circles_def, rectangle,
+    },
     prelude::*,
 };
 
@@ -34,36 +37,97 @@ pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
         0,
         0,
         0,
-    ).unwrap();
+    )
+    .unwrap();
 
     Ok(masked_image)
 }
 
-pub fn convert_to_enemy_red_map(image: &mut Mat) -> Result<(), Error> {
+pub fn convert_to_enemy_red_map(image: &mut Mat) -> Result<Mat, Error> {
     let image_src = image.clone();
-
+    let mut result_image = Mat::new_rows_cols_with_default(
+        image.rows(),
+        image.cols(),
+        CV_8UC1,
+        Scalar::new(0., 0., 0., 255.),
+    )?;
     in_range(
         &image_src,
         &opencv_bullshit_colour_from_rgba(210, 58, 49, 255),
         &opencv_bullshit_colour_from_rgba(236, 84, 69, 255),
-        image,
+        &mut result_image,
     )?; //atp masked image will only contain the white pixels of the enemy outlines
     // time to figure out logic regarding detection
-    let mut result_image = Mat::new_rows_cols_with_default(
-        image.rows(),
-        image.cols(),
-        CV_64FC4,
-        Scalar::new(0., 0., 0., 255.),
-    )?;
+
     // this attempt doesnt work ngl but il leave it here for now
-    // if let Ok(components) = connected_components_with_algorithm(image, &mut result_image, 8, CV_16U, -1) {
+    // if let Ok(components) =
+    //     connected_components_with_algorithm(image, &mut result_image, 8, CV_16U, -1)
+    // {
     //     println!("{components}");
     // } else {
-    //     return Err(Error {code: 1, message: "failed on connceted compomenmts".to_string()})
+    //     return Err(Error {
+    //         code: 1,
+    //         message: "failed on connceted compomenmts".to_string(),
+    //     });
     // }
-    hough_circles(image, &mut result_image, HOUGH_GRADIENT_ALT, 6.0, 100.0, 800.0, 0.5, 15, 100);
+    let mut temp = Mat::new_rows_cols_with_default(
+        image.rows(),
+        image.cols(),
+        CV_32FC3,
+        Scalar::new(0., 0., 0., 255.),
+    )?;
+    let mut circles = Mat::default();
+    println!("a");
+    hough_circles(
+        &result_image,
+        &mut circles,
+        HOUGH_GRADIENT,
+        1.5,
+        60.0,
+        100.0,
+        20.,
+        15,
+        500,
+    );
+    println!("b");
 
-    Ok(())
+    println!("Number of detected circles: {:?}", circles);
+    //     let mut temp: Vector<Vector<Point>> = Vector::new();
+    //     let kernel = imgproc::get_structuring_element(
+    //     imgproc::MORPH_ELLIPSE,
+    //     Size::new(5, 5),
+    //     Point::new(-1, -1),
+    // )?;
+    //     imgproc::morphology_ex(
+    //         &result_image.clone(),
+    //         &mut result_image,
+    //         imgproc::MORPH_CLOSE,
+    //         &kernel,
+    //         Point::new(-1, -1),
+    //         2,
+    //         BORDER_CONSTANT,
+    //         Scalar::default(),
+    //     );
+
+    //     match imgproc::find_contours(
+    //         &result_image,
+    //         &mut temp,
+    //         imgproc::RETR_CCOMP,
+    //         imgproc::CHAIN_APPROX_NONE,
+    //         Point::new(0, 0),
+    //     ) {
+    //         Ok(_) => {
+    //             println!("{:?}", temp);
+    //         }
+    //         Err(e) => {
+    //             return Err(Error {
+    //                 code: 1,
+    //                 message: format!("find_contours failed: {}", e),
+    //             });
+    //         }
+    //     }
+
+    Ok(result_image)
 }
 
 #[cfg(test)]
