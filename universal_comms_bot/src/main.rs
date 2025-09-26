@@ -14,18 +14,22 @@ fn main() {
 
     loop {
         let frame_data = recv.recv().unwrap();
-        println!("got something");
+        // println!("got something");
 
-        let Ok(frame) =
+        let Ok(mut frame) =
             processor_shared::convert_image_data(frame_data.height, frame_data.raw_buffer)
         else {
             println!("convert failed");
             // continue;
             panic!()
         };
-        let masked_img = processor_shared::league::enemy_map_detection::create_enemy_red_map(&frame);
-        // let red_map = processor_shared::league::enemy_map_detection::create_enemy_red_map(&frame);
-        highgui::imshow("Demo", &masked_img.unwrap()).unwrap();
-        let _ = highgui::wait_key(1);
+        if let Ok(masked_img) = processor_shared::league::enemy_map_detection::convert_to_enemy_red_map(&mut frame) {
+            highgui::imshow("Demo", &frame).unwrap();
+            let _ = highgui::wait_key(1);
+        }
+        
+        else {panic!()}        // let red_map = processor_shared::league::enemy_map_detection::create_enemy_red_map(&frame);
+        println!("{}", recv.len() as i32);
+        
     }
 }

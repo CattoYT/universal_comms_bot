@@ -1,6 +1,7 @@
+
 use opencv::{
-    core::{CV_64FC4, Scalar, in_range},
-    imgproc::rectangle,
+    core::{in_range, Scalar, CV_16U, CV_64FC4},
+    imgproc::{connected_components_with_algorithm, hough_circles, hough_circles_def, rectangle, HOUGH_GRADIENT, HOUGH_GRADIENT_ALT},
     prelude::*,
 };
 
@@ -48,6 +49,19 @@ pub fn convert_to_enemy_red_map(image: &mut Mat) -> Result<(), Error> {
         image,
     )?; //atp masked image will only contain the white pixels of the enemy outlines
     // time to figure out logic regarding detection
+    let mut result_image = Mat::new_rows_cols_with_default(
+        image.rows(),
+        image.cols(),
+        CV_64FC4,
+        Scalar::new(0., 0., 0., 255.),
+    )?;
+    // this attempt doesnt work ngl but il leave it here for now
+    // if let Ok(components) = connected_components_with_algorithm(image, &mut result_image, 8, CV_16U, -1) {
+    //     println!("{components}");
+    // } else {
+    //     return Err(Error {code: 1, message: "failed on connceted compomenmts".to_string()})
+    // }
+    hough_circles(image, &mut result_image, HOUGH_GRADIENT_ALT, 6.0, 100.0, 800.0, 0.5, 15, 100);
 
     Ok(())
 }

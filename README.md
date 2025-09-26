@@ -10,7 +10,7 @@ For league detection, please run the minimap at max size. Also if you dont have 
 Also u need to use (borderless) fullscreen
 
 TODO:
-
+    
 ### League  
 - [] Minimap pings when an enemy shows up in jungle
 - [] auto lock in
