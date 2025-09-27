@@ -40,3 +40,14 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
         }
     });
 }
+
+enum JungleStatus{
+    Topside,
+    Botside,
+}
+
+fn find_enemies_in_river() -> (Option<Vec<JungleStatus>>) {
+    // gonna see if i can determine if enemies are in topside or bottomside jungle
+    todo!();
+    // None
+}

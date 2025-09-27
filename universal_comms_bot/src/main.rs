@@ -1,10 +1,10 @@
 use opencv::highgui::{self, WINDOW_NORMAL};
-use std::{sync::Arc};
+use std::sync::Arc;
 
 mod managers;
 mod screenshots;
 
-use crate::{managers::league::process_map_data, screenshots::frame::FrameData};
+use crate::managers::league::process_map_data;
 
 fn main() {
     println!("Hello, world!");
