@@ -1,11 +1,11 @@
 use opencv::core::{
-    AlgorithmHint, Point, Point3f, Rect, Size, BORDER_CONSTANT, CV_32FC1, CV_32FC3, CV_8UC1
+    CV_8UC1, Point3f, Rect,
 };
 use opencv::{
-    core::{ALGO_HINT_DEFAULT, CV_16U, CV_64FC4, Point2d, Point2f, Scalar, Vector, in_range},
+    core::{Scalar, in_range},
     imgproc::{
-        self, HOUGH_GRADIENT, HOUGH_GRADIENT_ALT, connected_components_with_algorithm,
-        hough_circles, hough_circles_def, rectangle,
+        HOUGH_GRADIENT,
+        hough_circles, 
     },
     prelude::*,
 };
@@ -14,6 +14,11 @@ type Error = opencv::error::Error;
 
 const fn opencv_bullshit_colour_from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Scalar {
     Scalar::new(blue as f64, green as f64, red as f64, alpha as f64)
+}
+
+pub struct Detections {
+    pub total: u8,
+    pub enemies: Vec<Vec<f32>>,
 }
 
 pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
@@ -57,7 +62,7 @@ pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
     Ok(cropped_image.clone_pointee())
 }
 
-pub fn detect_enemies_on_redmap(image: &Mat) -> Option<u8> {
+pub fn detect_enemies_on_redmap(image: &Mat) -> Option<Detections> {
     let mut circles = Mat::default();
     let _ = hough_circles(
         &image,
@@ -72,22 +77,22 @@ pub fn detect_enemies_on_redmap(image: &Mat) -> Option<u8> {
     );
 
     if circles.total() == 0 {
-        return None
+        return None;
     }
 
     let mut result = Vec::new();
     for i in 0..(circles.total()) {
+        let circle = circles.at_2d::<Point3f>(0, i as i32).unwrap();
 
-        println!("{}", i as i32 * 3);
-        let circle = circles.at_2d::<Point3f>(0, (i as i32)).unwrap();
         println!("{:?}", circle);
-        result.push(circle);
+
+        result.push(vec![circle.x, circle.y, circle.z]);
     }
-    println!("{:?}", result);
-    Some(circles.total() as u8)
 
-    
-
+    Some(Detections {
+        total: result.len() as u8,
+        enemies: result,
+    })
 }
 
 #[cfg(test)]
@@ -111,8 +116,8 @@ mod tests {
                 Some(count) => {
                     save_as_image(&img, "test.png");
 
-                    println!("{count}");
-                    if count == 2 {
+                    println!("{}", count.total);
+                    if count.total == 2 {
                         return;
                     } else {
                         panic!("Didnt get 2 but got something")
@@ -124,5 +129,3 @@ mod tests {
         }
     }
 }
-
-

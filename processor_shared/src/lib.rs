@@ -5,8 +5,8 @@ use opencv::{
 };
 pub mod league;
 
-pub fn convert_image_data(height: u32, data: Vec<u8>) -> Result<Mat, Error> {
-    let binding = Mat::from_slice(&data).unwrap();
+pub fn convert_image_data(height: u32, data: &Vec<u8>) -> Result<Mat, Error> {
+    let binding = Mat::from_slice(data).unwrap();
     let a = binding.reshape(4, height as i32);
 
     match a {

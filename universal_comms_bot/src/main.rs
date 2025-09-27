@@ -1,8 +1,12 @@
 use core::panic;
 use opencv::highgui::{self, WINDOW_NORMAL};
+use std::{io::stdin, sync::Arc, thread};
 
+mod managers;
 mod screenshots;
 use processor_shared;
+
+use crate::{managers::league::process_map_data, screenshots::frame::FrameData};
 
 fn main() {
     println!("Hello, world!");
@@ -10,29 +14,31 @@ fn main() {
     highgui::named_window("Demo", WINDOW_NORMAL).expect("ONO");
 
     #[allow(unused_variables)]
-    let (recv, screenshot_controller) = screenshots::capture::spawn_screenshotting_thread();
+    let (raw_screenshot_recv, screenshot_controller) =
+        screenshots::capture::spawn_screenshotting_thread();
 
+    let managers = vec![
+        // add managers here
+        process_map_data,
+    ];
+
+    let mut channels = vec![];
+
+    for x in managers.iter() {
+        let (consumer_sender, consumer_recv) = crossbeam::channel::unbounded();
+        channels.push(consumer_sender);
+        x(consumer_recv);
+    }
+
+    std::thread::spawn(move || {
+        loop {
+            let screenshot = Arc::new(raw_screenshot_recv.recv().unwrap());
+            for channel in &channels {
+                let _ = channel.send(screenshot.clone());
+            }
+        }
+    });
     loop {
-        let frame_data = recv.recv().unwrap();
-        // println!("got something");
-
-        let Ok(mut frame) =
-            processor_shared::convert_image_data(frame_data.height, frame_data.raw_buffer)
-        else {
-            println!("convert failed");
-            // continue;
-            panic!()
-        };
-        match processor_shared::league::enemy_map_detection::create_enemy_red_map(&mut frame) {
-            Ok(new_mat) => {
-                highgui::imshow("Demo", &new_mat).unwrap();
-                println!("{}", processor_shared::league::enemy_map_detection::detect_enemies_on_redmap(&new_mat).or(Some(0)).unwrap());
-                let _ = highgui::wait_key(1);
-            }
-            Err(e) => {
-                panic!("{e}");
-            }
-        } // let red_map = processor_shared::league::enemy_map_detection::create_enemy_red_map(&frame);
-        // println!("{}", recv.len() as i32);
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
 }
