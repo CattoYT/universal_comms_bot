@@ -1,4 +1,4 @@
-use opencv::core::{AlgorithmHint, Point, Size, BORDER_CONSTANT, CV_32FC1, CV_32FC3, CV_8UC1};
+use opencv::core::{AlgorithmHint, Point, Rect, Size, BORDER_CONSTANT, CV_32FC1, CV_32FC3, CV_8UC1};
 use opencv::{
     core::{ALGO_HINT_DEFAULT, CV_16U, CV_64FC4, Point2d, Point2f, Scalar, Vector, in_range},
     imgproc::{
@@ -14,36 +14,7 @@ const fn opencv_bullshit_colour_from_rgba(red: u8, green: u8, blue: u8, alpha: u
     Scalar::new(blue as f64, green as f64, red as f64, alpha as f64)
 }
 
-pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
-    let mut masked_image = Mat::new_rows_cols_with_default(
-        image.rows(),
-        image.cols(),
-        CV_64FC4,
-        Scalar::new(0., 0., 22., 255.),
-    )?;
-
-    in_range(
-        image,
-        &opencv_bullshit_colour_from_rgba(210, 58, 49, 255),
-        &opencv_bullshit_colour_from_rgba(236, 84, 69, 255),
-        &mut masked_image,
-    )?; //atp masked image will only contain the white pixels of the enemy outlines
-    // time to figure out logic regarding detection
-
-    rectangle(
-        &mut masked_image,
-        opencv::core::Rect::new(1628, 699, 8, 9),
-        opencv_bullshit_colour_from_rgba(0, 0, 0, 255),
-        0,
-        0,
-        0,
-    )
-    .unwrap();
-
-    Ok(masked_image)
-}
-
-pub fn convert_to_enemy_red_map(image: &mut Mat) -> Result<Mat, Error> {
+pub fn convert_to_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
     let image_src = image.clone();
     let mut result_image = Mat::new_rows_cols_with_default(
         image.rows(),
@@ -70,64 +41,32 @@ pub fn convert_to_enemy_red_map(image: &mut Mat) -> Result<Mat, Error> {
     //         message: "failed on connceted compomenmts".to_string(),
     //     });
     // }
-    let mut temp = Mat::new_rows_cols_with_default(
-        image.rows(),
-        image.cols(),
-        CV_32FC3,
-        Scalar::new(0., 0., 0., 255.),
-    )?;
+
+    let cropped_image = Mat::roi(&result_image, Rect {
+    x: 1498,
+    y: 658,
+    width: 422,
+    height: 422,
+}).unwrap();
+
     let mut circles = Mat::default();
     println!("a");
-    hough_circles(
-        &result_image,
+    let _ = hough_circles(
+        &cropped_image,
         &mut circles,
         HOUGH_GRADIENT,
         1.5,
-        60.0,
+        100.0,
         100.0,
         20.,
         15,
-        500,
+        100,
     );
     println!("b");
 
-    println!("Number of detected circles: {:?}", circles);
-    //     let mut temp: Vector<Vector<Point>> = Vector::new();
-    //     let kernel = imgproc::get_structuring_element(
-    //     imgproc::MORPH_ELLIPSE,
-    //     Size::new(5, 5),
-    //     Point::new(-1, -1),
-    // )?;
-    //     imgproc::morphology_ex(
-    //         &result_image.clone(),
-    //         &mut result_image,
-    //         imgproc::MORPH_CLOSE,
-    //         &kernel,
-    //         Point::new(-1, -1),
-    //         2,
-    //         BORDER_CONSTANT,
-    //         Scalar::default(),
-    //     );
+    println!("Number of detected circles: {:?}", circles.total());
 
-    //     match imgproc::find_contours(
-    //         &result_image,
-    //         &mut temp,
-    //         imgproc::RETR_CCOMP,
-    //         imgproc::CHAIN_APPROX_NONE,
-    //         Point::new(0, 0),
-    //     ) {
-    //         Ok(_) => {
-    //             println!("{:?}", temp);
-    //         }
-    //         Err(e) => {
-    //             return Err(Error {
-    //                 code: 1,
-    //                 message: format!("find_contours failed: {}", e),
-    //             });
-    //         }
-    //     }
-
-    Ok(result_image)
+    Ok(cropped_image.clone_pointee())
 }
 
 #[cfg(test)]
@@ -139,11 +78,11 @@ mod tests {
     #[test]
     fn test_black_image() {
         let image = imread(
-            "F:\\Nerd Shit\\Rust\\universal_comms_bot\\images\\League of Legends Screenshot 2025.09.25 - 19.34.53.49 copy.png",
+            "F:\\Nerd Shit\\Rust\\universal_comms_bot\\images\\TestData\\2 results.png",
             IMREAD_COLOR,
         ).unwrap();
 
-        match create_enemy_red_map(&image) {
+        match convert_to_enemy_red_map(&image) {
             Ok(_) => println!("ok"),
             Err(e) => panic!("{e}"),
         }
