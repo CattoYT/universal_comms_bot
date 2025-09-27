@@ -1,10 +1,8 @@
-use core::panic;
 use opencv::highgui::{self, WINDOW_NORMAL};
-use std::{io::stdin, sync::Arc, thread};
+use std::{sync::Arc};
 
 mod managers;
 mod screenshots;
-use processor_shared;
 
 use crate::{managers::league::process_map_data, screenshots::frame::FrameData};
 

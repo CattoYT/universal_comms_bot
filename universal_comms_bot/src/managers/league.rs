@@ -28,6 +28,7 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
                         Some(enemies) => enemies.total,
                         None => 0
                     };
+                    println!("Current enemies in vision: {total_detected_minimap_enemies}");
 
                     let _ = highgui::wait_key(1);
                 }
