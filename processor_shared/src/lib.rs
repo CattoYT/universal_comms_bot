@@ -33,8 +33,8 @@ pub fn convert_image_data(height: u32, data: Vec<u8>) -> Result<Mat, Error> {
     }
 }
 
-pub fn save_as_image(mat: &Mat) -> Result<(), Error> {
-    if let Ok(_) = imgcodecs::imwrite(&"gray_image_cv2.png", mat, &Vector::new()) {
+pub fn save_as_image(mat: &Mat, filename: &str) -> Result<(), Error> {
+    if let Ok(_) = imgcodecs::imwrite(filename, mat, &Vector::new()) {
         return Ok(());
     } else {
         return Err(opencv::Error {

@@ -23,9 +23,10 @@ fn main() {
             // continue;
             panic!()
         };
-        match processor_shared::league::enemy_map_detection::convert_to_enemy_red_map(&mut frame) {
+        match processor_shared::league::enemy_map_detection::create_enemy_red_map(&mut frame) {
             Ok(new_mat) => {
                 highgui::imshow("Demo", &new_mat).unwrap();
+                println!("{}", processor_shared::league::enemy_map_detection::detect_enemies_on_redmap(&new_mat).or(Some(0)).unwrap());
                 let _ = highgui::wait_key(1);
             }
             Err(e) => {
