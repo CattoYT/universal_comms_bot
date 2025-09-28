@@ -1,13 +1,37 @@
+use std::{io::{self, Read, Stdin}, sync::Arc};
 
-use std::sync::Arc;
-
+use sysinfo::{self, ProcessesToUpdate};
 mod managers;
 mod screenshots;
 
-use crate::managers::league::process_map_data;
+use crate::managers::league::minimap::process_map_data;
 
 fn main() {
     println!("Hello, world!");
+    let mut system = sysinfo::System::new();
+    system.refresh_processes(ProcessesToUpdate::All, true);
+    let mut x = system
+        .processes_by_name("League of Legends".as_ref())
+        .peekable();
+
+    if x.peek().is_none() {
+        println!("Initiating lock in. Please enter queue.");
+        {
+            let mut champion = String::new();
+            let _ = io::stdin().read_line(&mut champion);
+            match managers::league::lock_in::start_queue_lock_in(&champion) {
+                Ok(_) => {},
+                Err(_) => {
+                    println!("Failed to start queue. Please press enter once you have entered the game.");
+                    let mut rust_skill_issue = String::new();
+                    io::stdin().read_line(&mut rust_skill_issue);
+                }
+            }
+
+            
+
+        }
+    }
 
     // highgui::named_window("Demo", WINDOW_NORMAL).expect("ONO");
 

@@ -1,7 +1,8 @@
 use std::{
     fs::File,
     io::{BufReader, Error},
-    sync::Arc, time::Duration,
+    sync::Arc,
+    time::Duration,
 };
 
 use crossbeam::channel::Receiver;
@@ -30,6 +31,11 @@ struct Enemy {
     map_side: Option<JungleStatus>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum JungleStatus {
+    Topside,
+    Botside,
+}
 pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
     std::thread::spawn(move || {
         // probalem with this is that i want to share the image, so
@@ -93,8 +99,8 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
             match current_len.cmp(&last_len) {
                 std::cmp::Ordering::Greater => {
                     println!("New enemy detected");
-                    let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
-                        .expect("bro what");
+                    let stream_handle =
+                        rodio::OutputStreamBuilder::open_default_stream().expect("bro what");
                     let mixer = stream_handle.mixer();
                     let file = BufReader::new(
                         File::open("universal_comms_bot\\sfx\\Retreat_ping_SFX.ogg").unwrap(),
@@ -109,12 +115,6 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
             }
         }
     });
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-enum JungleStatus {
-    Topside,
-    Botside,
 }
 
 fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
@@ -133,6 +133,8 @@ fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     // use fucking y=mx+c omg how is this actually a valid use for it
     // None
 }
+
+
 
 #[cfg(test)]
 mod tests {

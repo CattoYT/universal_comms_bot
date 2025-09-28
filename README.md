@@ -13,14 +13,14 @@ Also u need to use (borderless) fullscreen
 TODO:
     
 ### League  
-- [] Minimap pings when an enemy shows up in jungle
-- [] auto lock in
+- [ ] Minimap pings when an enemy shows up in jungle
+- [ ] auto lock in
 
 ### Valorant
-- [] TTS
-- [] Enemy detection
+- [ ] TTS
+- [ ] Enemy detection
 
 
 ### General  
-- [] Allow for sending frames over network and processing them
-- [] actually do something with the frames
+- [ ] Allow for sending frames over network and processing them
+- [ ] actually do something with the frames
