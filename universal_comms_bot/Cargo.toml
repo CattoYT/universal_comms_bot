@@ -10,3 +10,4 @@ crossbeam = "0.8.4"
 windows-capture = "2.0.0-alpha.1"
 processor_shared = { path = "../processor_shared" }
 opencv = "0.96.0"
+rodio = "0.21.1"

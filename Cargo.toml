@@ -11,6 +11,7 @@ members = [
     "processor_shared"
 
 ]
+resolver = "3"
 
 # [[bin]]
 # name = "universal_comms_bot_clientside"

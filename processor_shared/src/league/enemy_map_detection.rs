@@ -99,7 +99,7 @@ mod tests {
     #[test]
     fn test_black_image() {
         let image = imread(
-            "F:\\Nerd Shit\\Rust\\universal_comms_bot\\images\\TestData\\2 results.png",
+            "..\\images\\TestData\\2 results.png",
             IMREAD_COLOR,
         )
         .unwrap();
