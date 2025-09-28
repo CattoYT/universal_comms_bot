@@ -1,5 +1,5 @@
 use opencv::core::{
-    Point2f, Point3f, Rect, CV_8UC1
+    Point3f, Rect, CV_8UC1
 };
 use opencv::{
     core::{Scalar, in_range},

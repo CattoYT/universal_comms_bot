@@ -43,13 +43,3 @@ pub fn save_as_image(mat: &Mat, filename: &str) -> Result<(), Error> {
         });
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        // TODO: Eventually write tests lol
-    }
-}

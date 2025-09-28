@@ -1,13 +1,12 @@
 use std::{
     fs::File,
-    io::{BufReader, Error, Read},
+    io::{BufReader, Error},
     sync::Arc, time::Duration,
 };
 
 use crossbeam::channel::Receiver;
 use opencv::highgui;
 use processor_shared::league::enemy_map_detection::Detections;
-use rodio::{Decoder, Source};
 
 use crate::screenshots::frame::FrameData;
 
@@ -84,7 +83,7 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
 
             let (enemies, _last) = (&current_state.enemies, &current_state.last_update);
 
-            let current_len = current_state.enemies.as_ref().map(|v| v.len()).unwrap_or(0);
+            let current_len = enemies.as_ref().map(|v| v.len()).unwrap_or(0);
             let last_len = current_state
                 .last_update
                 .as_ref()
@@ -95,7 +94,7 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
                 std::cmp::Ordering::Greater => {
                     println!("New enemy detected");
                     let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
-                        .expect("open default audio stream");
+                        .expect("bro what");
                     let mixer = stream_handle.mixer();
                     let file = BufReader::new(
                         File::open("universal_comms_bot\\sfx\\Retreat_ping_SFX.ogg").unwrap(),
@@ -118,7 +117,7 @@ enum JungleStatus {
     Botside,
 }
 
-fn check_river(coord: Vec<f32>) -> (Option<JungleStatus>) {
+fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     // gonna see if i can determine if enemies are in topside or bottomside jungle
     let x = coord[0];
     let y = coord[1];
