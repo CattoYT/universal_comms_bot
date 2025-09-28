@@ -1,5 +1,5 @@
 use opencv::core::{
-    CV_8UC1, Point3f, Rect,
+    Point2f, Point3f, Rect, CV_8UC1
 };
 use opencv::{
     core::{Scalar, in_range},
@@ -21,6 +21,12 @@ pub struct Detections {
     pub enemies: Vec<Vec<f32>>,
 }
 
+impl Detections {
+    pub fn from_empty() -> Detections {
+        Detections { total: 0, enemies: Vec::new() }
+    }
+}
+
 pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
     let image_src = image.clone();
     let mut result_image = Mat::new_rows_cols_with_default(
@@ -35,19 +41,6 @@ pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
         &opencv_bullshit_colour_from_rgba(236, 84, 69, 255),
         &mut result_image,
     )?; //atp masked image will only contain the white pixels of the enemy outlines
-    // time to figure out logic regarding detection
-
-    // this attempt doesnt work ngl but il leave it here for now
-    // if let Ok(components) =
-    //     connected_components_with_algorithm(image, &mut result_image, 8, CV_16U, -1)
-    // {
-    //     println!("{components}");
-    // } else {
-    //     return Err(Error {
-    //         code: 1,
-    //         message: "failed on connceted compomenmts".to_string(),
-    //     });
-    // }
 
     let cropped_image = Mat::roi(
         &result_image,
@@ -114,7 +107,7 @@ mod tests {
         match create_enemy_red_map(&image) {
             Ok(img) => match detect_enemies_on_redmap(&img) {
                 Some(count) => {
-                    save_as_image(&img, "test.png");
+                    save_as_image(&img, "test.png").expect("bruh");
 
                     println!("{}", count.total);
                     if count.total == 2 {

@@ -9,7 +9,7 @@ use crate::managers::league::process_map_data;
 fn main() {
     println!("Hello, world!");
 
-    highgui::named_window("Demo", WINDOW_NORMAL).expect("ONO");
+    // highgui::named_window("Demo", WINDOW_NORMAL).expect("ONO");
 
     #[allow(unused_variables)]
     let (raw_screenshot_recv, screenshot_controller) =
