@@ -14,8 +14,10 @@ fn main() {
     println!("Hello, world!");
 
     let mut managers: Vec<fn(Receiver<Arc<FrameData>>)> = vec![league::minimap::process_map_data];
-
-    check_for_league_and_return_managers(&mut managers);
+    // TODO: actually make sure this doesnt error cuz idk rust well enough to tell if having 2 mut refs like that will piss off the borrow checker
+    if check_for_league_and_return_managers(&mut managers).is_none() {
+        // check_for_valorant_and_return_managers(&mut managers);
+    }
 
     let (raw_screenshot_recv, screenshot_controller) =
         screenshots::capture::spawn_screenshotting_thread();
@@ -46,7 +48,6 @@ fn main() {
 fn check_for_league_and_return_managers(
     managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>,
 ) -> Option<()> {
-
     //TODO: NEEDS REFACTOR -> check league game first you fucking buffoon
 
     let mut system = sysinfo::System::new();
