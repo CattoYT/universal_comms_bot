@@ -97,7 +97,7 @@ fn check_for_league_and_return_managers(
                             "Failed to start queue. Please press enter once you have entered the game."
                         );
                         let mut rust_skill_issue = String::new();
-                        io::stdin().read_line(&mut rust_skill_issue);
+                        let _ = io::stdin().read_line(&mut rust_skill_issue);
                     }
                 }
                 managers.push(league::minimap::process_map_data);
