@@ -118,7 +118,6 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
 }
 
 fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
-    // gonna see if i can determine if enemies are in topside or bottomside jungle
     let x = coord[0];
     let y = coord[1];
 
@@ -142,9 +141,7 @@ fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     }
     None
 
-    // current plan:
-    // use fucking y=mx+c omg how is this actually a valid use for it
-    // None
+
 }
 
 #[cfg(test)]
