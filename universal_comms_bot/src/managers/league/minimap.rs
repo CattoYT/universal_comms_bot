@@ -122,9 +122,22 @@ fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     let x = coord[0];
     let y = coord[1];
 
-    if y < (x * -1.) + 400. {
+    //ignore my shitcode, its a lazy workaround for finding the river while making use of whatever y=mx+c bullshit i remembered from gcses
+    if (y < (x * -1.) + 400.) //midlane bound
+    && (y < 57.) // blueside left bound
+    && (x > 199.) // redsude top bound
+    && (x < 265.) //redside right bound
+    && (y > 265.) //blueside bottom bound
+    && (y > (x * -1.) + 155.) { //toplane (lazily done)
         return Some(JungleStatus::Topside);
-    } else if y > (x * -1.) + 440. {
+    } else 
+    if (y > (x * -1.) + 440.) //midlane bound
+    && (x < 348.) //redside right bound
+    && (y > 355.) //blueside bottom bound
+    && (x > 140.) //blueside left bound
+    && (y > 142.) //redside top bound
+    && (y < (x * -1.) + 645.) //botlane (again, lazily done cuz idk how a half horizontal quadratic would work (i do but im lazy thanks further maths :<))
+    {
         return Some(JungleStatus::Botside);
     }
     None
@@ -133,8 +146,6 @@ fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     // use fucking y=mx+c omg how is this actually a valid use for it
     // None
 }
-
-
 
 #[cfg(test)]
 mod tests {

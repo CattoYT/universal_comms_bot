@@ -1,4 +1,3 @@
-
 use rustautogui::{RustAutoGui, errors::AutoGuiError};
 use windows_capture::monitor::Monitor;
 
@@ -17,31 +16,39 @@ impl RustAutoGuiHelper {
         Ok(())
     }
     fn load_templates(&mut self) -> Result<(), AutoGuiError> {
+        //if this fails then cd into the universal_comms_bot folder it will work then lol
+        // for release il just zip the images together
         self.rustautogui.store_template_from_file(
-            "../universal_comms_bot/lock_in_images/Find Match.png",
+            "lock_in_images/Find Match.png",
             self.window_size,
             rustautogui::MatchMode::Segmented,
             "Find match",
         )?;
         self.rustautogui.store_template_from_file(
-            "../universal_comms_bot/lock_in_images/Accept Match.png",
+            "lock_in_images/Accept Match.png",
             self.window_size,
             rustautogui::MatchMode::Segmented,
             "Accept match",
         )?;
-
         self.rustautogui.store_template_from_file(
-            "../universal_comms_bot/lock_in_images/Search Bar.png",
+            "lock_in_images/Search Bar.png",
             self.window_size,
             rustautogui::MatchMode::Segmented,
             "Search bar",
         )?;
         self.rustautogui.store_template_from_file(
-            "../universal_comms_bot/lock_in_images/Offset down for champ portrait.png",
+            "lock_in_images/Offset down for champ portrait.png",
             self.window_size,
             rustautogui::MatchMode::Segmented,
             "topjungle offset for portrait",
         )?;
+        self.rustautogui.store_template_from_file(
+            "lock_in_images/Lock in.png",
+            self.window_size,
+            rustautogui::MatchMode::Segmented,
+            "Lock in",
+        )?;
+
         Ok(())
     }
 }
@@ -71,19 +78,32 @@ pub fn start_queue_lock_in(champion: &str) -> Result<(), LockInError> {
 
     let _ = rustautogui
         .rustautogui
-        .find_stored_image_on_screen_and_move_mouse(0.8, 0.1, "Accept match");
+        .loop_find_stored_image_on_screen_and_move_mouse(0.8, 0.1, 180, "Accept match"); // i think 3 minutes should be enough time to leave it as automatic but i can incrase ig but i need more time to test
 
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
 
-    let _ = lock_champion(champion, &mut rustautogui);
+    // let _ = lock_champion(champion, &mut rustautogui);
 
     Ok(())
 }
 
-fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<(), LockInError> {
+// pub fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<(), LockInError> { // rtemove pub from this later
+pub fn lock_champion(champion: &str) -> Result<(), LockInError> {
+    // rtemove pub from this later
 
+    let mut rustautogui: RustAutoGuiHelper = RustAutoGuiHelper {
+        window_size: Some((
+            0,
+            0,
+            Monitor::primary().unwrap().width().unwrap(),
+            Monitor::primary().unwrap().height().unwrap(),
+        )),
+        rustautogui: rustautogui::RustAutoGui::new(false).unwrap(),
+    };
 
-    
+    rustautogui
+        .load_templates()
+        .expect("Failed to load templates");
 
     let _ = rustautogui.move_and_click_on_template("Search bar");
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
@@ -91,17 +111,24 @@ fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<
     let _ = rustautogui.rustautogui.keyboard_input(champion);
     // figure out how to find the champion portrait possible need for text recognition :/
     // cba to do this properly so enjoy this implementation
-    let possible_location = rustautogui.rustautogui.find_stored_image_on_screen(0.9, "topjungle offset for portrait");
+    let possible_location = rustautogui
+        .rustautogui
+        .find_stored_image_on_screen(0.9, "topjungle offset for portrait");
+
     match possible_location {
         Ok(confirmed_location) => {
             if let Some(coords) = confirmed_location {
                 let coords = coords[0];
-                rustautogui.rustautogui.move_mouse_to_pos(coords.0, coords.1-30, 0.1); //TODO: find the correct offset for Y and also test like this entire file
+                let _ = rustautogui
+                    .rustautogui
+                    .move_mouse_to_pos(coords.0 + 5, coords.1 + 40, 0.1);
             }
-        },
+        }
         Err(_) => return Err(LockInError),
-    
     }
-    
+    let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
+
+    let _ = rustautogui.move_and_click_on_template("Lock in");
+
     Ok(())
 }

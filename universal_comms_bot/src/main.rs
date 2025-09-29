@@ -24,23 +24,22 @@ fn main() {
                 Err(_) => {
                     println!("Failed to start queue. Please press enter once you have entered the game.");
                     let mut rust_skill_issue = String::new();
-                    io::stdin().read_line(&mut rust_skill_issue);
+                    io::stdin().read_line(&mut rust_skill_issue).expect("you better enter a correct champion");
                 }
             }
-
+            let _ = managers::league::lock_in::lock_champion(&champion);
             
 
         }
     }
 
-    // highgui::named_window("Demo", WINDOW_NORMAL).expect("ONO");
 
     #[allow(unused_variables)]
     let (raw_screenshot_recv, screenshot_controller) =
         screenshots::capture::spawn_screenshotting_thread();
 
     let managers = vec![
-        // add managers here
+        // add managers pls
         process_map_data,
     ];
 
