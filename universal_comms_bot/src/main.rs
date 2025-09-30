@@ -20,13 +20,12 @@ fn main() {
         // check_for_valorant_and_return_managers(&mut managers);
     }
 
-    let (raw_screenshot_recv, screenshot_controller) =
-        screenshots::capture::spawn_screenshotting_thread();
-
     if managers.len() == 0 {
         println!("No games found.");
         exit(0)
     }
+    let (raw_screenshot_recv, screenshot_controller) =
+        screenshots::capture::spawn_screenshotting_thread();
     let mut channels = vec![];
 
     for x in managers.iter() {
@@ -69,20 +68,18 @@ fn check_for_league_and_return_managers(
         {
             let mut champion = String::new();
             println!(
-                "When in the start queue menu, enter your champion below and press enter. 
-                \nAlso quickly alt tab to the league window and ensure its the focused window!: 
-                \nChampion: "
+                "When in the start queue menu, enter your champion below and press enter. \nWhen pressing enter, make sure that the \"START QUEUE\" button is completely visible! \nThe program might fail otherwise!\nChampion: "
             );
             let _ = io::stdin().read_line(&mut champion);
             if let Err(_) = managers::league::lock_in::start_queue_lock_in(&champion) {
-                    //shit happened, let user do it tehemslef
-                    println!(
-                        "Failed to start queue. Please press enter once you have entered the game."
-                    );
-                    let mut rust_skill_issue = String::new();
-                    let _ = io::stdin().read_line(&mut rust_skill_issue);
-                }
-            
+                //shit happened, let user do it tehemslef
+                println!(
+                    "Failed to start queue. Please press enter once you have entered the game."
+                );
+                let mut rust_skill_issue = String::new();
+                let _ = io::stdin().read_line(&mut rust_skill_issue);
+            }
+
             managers.push(league::minimap::process_map_data);
             return Some(());
         }

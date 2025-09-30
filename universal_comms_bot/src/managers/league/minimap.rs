@@ -89,6 +89,7 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
 
             let (enemies, _last) = (&current_state.enemies, &current_state.last_update);
 
+
             let current_len = enemies.as_ref().map(|v| v.len()).unwrap_or(0);
             let last_len = current_state
                 .last_update
@@ -102,12 +103,12 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
                     let stream_handle =
                         rodio::OutputStreamBuilder::open_default_stream().expect("bro what");
                     let mixer = stream_handle.mixer();
-                    let file = BufReader::new(
-                        File::open("sfx/Retreat_ping_SFX.ogg").unwrap(),
-                    );
+
+                    let file = BufReader::new(File::open("sfx/Retreat_ping_SFX.ogg").unwrap());
 
                     let sink = rodio::play(mixer, BufReader::new(file)).unwrap();
                     sink.set_volume(0.05);
+
                     std::thread::sleep(Duration::from_secs_f32(1.));
                 }
                 std::cmp::Ordering::Less => println!("Lost vision of enemy"),
@@ -115,6 +116,36 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
             }
         }
     });
+}
+
+fn find_new_enemies(
+    current: &Option<Vec<Enemy>>,
+    last: &Option<Vec<Enemy>>,
+    tol: f32,
+) -> Vec<Enemy> {
+    match current {
+        None => Vec::new(),
+        Some(curr_vec) => {
+            // if there's no last, everything is new
+            let last_vec = match last {
+                Some(v) => v,
+                None => return curr_vec.clone(),
+            };
+            let mut new = Vec::new();
+            'outer: for e in curr_vec.iter().cloned() {
+                for old in last_vec.iter() {
+                    if is_same_enemy(&e, old, tol) {
+                        continue 'outer; // found match -> not new
+                    }
+                }
+                new.push(e);
+            }
+            new
+        }
+    }
+}
+fn is_same_enemy(a: &Enemy, b: &Enemy, tol: f32) -> bool {
+    (a.x - b.x).abs() <= tol && (a.y - b.y).abs() <= tol
 }
 
 fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
@@ -127,21 +158,21 @@ fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     && (x > 199.) // redsude top bound
     && (x < 265.) //redside right bound
     && (y > 265.) //blueside bottom bound
-    && (y > (x * -1.) + 155.) { //toplane (lazily done)
+    && (y > (x * -1.) + 155.)
+    {
+        //toplane (lazily done)
         return Some(JungleStatus::Topside);
-    } else 
-    if (y > (x * -1.) + 440.) //midlane bound
+    } else if (y > (x * -1.) + 440.) //midlane bound
     && (x < 348.) //redside right bound
     && (y > 355.) //blueside bottom bound
     && (x > 140.) //blueside left bound
     && (y > 142.) //redside top bound
-    && (y < (x * -1.) + 645.) //botlane (again, lazily done cuz idk how a half horizontal quadratic would work (i do but im lazy thanks further maths :<))
+    && (y < (x * -1.) + 645.)
+    //botlane (again, lazily done cuz idk how a half horizontal quadratic would work (i do but im lazy thanks further maths :<))
     {
         return Some(JungleStatus::Botside);
     }
     None
-
-
 }
 
 #[cfg(test)]

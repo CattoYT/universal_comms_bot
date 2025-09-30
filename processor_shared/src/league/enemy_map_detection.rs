@@ -1,12 +1,8 @@
-use opencv::core::{
-    Point3f, Rect, CV_8UC1
-};
+use opencv::core::{CV_8UC1, Point3f, Rect};
+use opencv::imgproc::rectangle;
 use opencv::{
     core::{Scalar, in_range},
-    imgproc::{
-        HOUGH_GRADIENT,
-        hough_circles, 
-    },
+    imgproc::{HOUGH_GRADIENT, hough_circles},
     prelude::*,
 };
 
@@ -23,7 +19,10 @@ pub struct Detections {
 
 impl Detections {
     pub fn from_empty() -> Detections {
-        Detections { total: 0, enemies: Vec::new() }
+        Detections {
+            total: 0,
+            enemies: Vec::new(),
+        }
     }
 }
 
@@ -42,6 +41,53 @@ pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
         &mut result_image,
     )?; //atp masked image will only contain the white pixels of the enemy outlines
 
+    //ignore the turret numbers
+    // top turret
+    let ignore_rect = Rect {
+        x: 117, // top-left x
+        y: 36,  // top-left y
+        width: 8,
+        height: 9,
+    };
+    rectangle(
+        &mut result_image,
+        ignore_rect,
+        Scalar::new(0., 0., 0., 255.), // black out the region
+        -1,                            // fill the rectangle
+        opencv::imgproc::LINE_8,
+        0,
+    )?;
+    // mid turret
+    let ignore_rect = Rect {
+        x: 238, // top-left x
+        y: 173,  // top-left y
+        width: 8,
+        height: 12,
+    };
+    rectangle(
+        &mut result_image,
+        ignore_rect,
+        Scalar::new(0., 0., 0., 255.), // black out the region
+        -1,                            // fill the rectangle
+        opencv::imgproc::LINE_8,
+        0,
+    )?;
+    // bot turret
+    let ignore_rect = Rect {
+        x: 365, // top-left x
+        y: 275,  // top-left y
+        width: 8,
+        height: 15,
+    };
+    rectangle(
+        &mut result_image,
+        ignore_rect,
+        Scalar::new(0., 0., 0., 255.), // black out the region
+        -1,                            // fill the rectangle
+        opencv::imgproc::LINE_8,
+        0,
+    )?;
+    
     let cropped_image = Mat::roi(
         &result_image,
         Rect {
@@ -98,11 +144,7 @@ mod tests {
 
     #[test]
     fn test_black_image() {
-        let image = imread(
-            "..\\images\\TestData\\2 results.png",
-            IMREAD_COLOR,
-        )
-        .unwrap();
+        let image = imread("..\\images\\TestData\\2 results.png", IMREAD_COLOR).unwrap();
 
         match create_enemy_red_map(&image) {
             Ok(img) => match detect_enemies_on_redmap(&img) {

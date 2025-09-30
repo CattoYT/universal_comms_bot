@@ -1,3 +1,5 @@
+use std::{thread, time::Duration};
+
 use rustautogui::{RustAutoGui, errors::AutoGuiError};
 use windows_capture::monitor::Monitor;
 
@@ -35,19 +37,19 @@ impl RustAutoGuiHelper {
     ) -> Result<(), AutoGuiError> {
         if do_loop {
             self.rustautogui
-                .loop_find_stored_image_on_screen_and_move_mouse(0.8, 0.05, 180, template)?;
+                .loop_find_stored_image_on_screen_and_move_mouse(0.6, 0.05, 180, template)?;
         } else {
             self.rustautogui
-                .find_stored_image_on_screen_and_move_mouse(0.8, 0.05, template)?;
+                .find_stored_image_on_screen_and_move_mouse(0.6, 0.05, template)?;
         }
         Ok(())
     }
     fn load_templates(&mut self) -> Result<(), AutoGuiError> {
         //if this fails then cd into the universal_comms_bot folder it will work then lol
         // for release il just zip the images together
-        if let Err(_) = self.rustautogui.change_ocl_device(0) {
-            println!("Failed to use opencl! I highly recommend using it, but I will proceed.")
-        } // this might not work, so just like be aware
+        // if let Err(_) = self.rustautogui.change_ocl_device(0) {
+        //     println!("Failed to use opencl! I highly recommend using it, but I will proceed.")
+        // } // this might not work, so just like be aware
 
         if self.templates_loaded {
             return Err(AutoGuiError::ImgError(
@@ -58,31 +60,31 @@ impl RustAutoGuiHelper {
         self.rustautogui.store_template_from_file(
             "lock_in_images/Find Match.png",
             self.window_size,
-            rustautogui::MatchMode::Segmented,
+            rustautogui::MatchMode::SegmentedOcl,
             "Find match",
         )?;
         self.rustautogui.store_template_from_file(
             "lock_in_images/Accept Match.png",
             self.window_size,
-            rustautogui::MatchMode::Segmented,
+            rustautogui::MatchMode::SegmentedOcl,
             "Accept match",
         )?;
         self.rustautogui.store_template_from_file(
             "lock_in_images/Search Bar.png",
             self.window_size,
-            rustautogui::MatchMode::Segmented,
+            rustautogui::MatchMode::SegmentedOcl,
             "Search bar",
         )?;
         self.rustautogui.store_template_from_file(
             "lock_in_images/Offset down for champ portrait.png",
             self.window_size,
-            rustautogui::MatchMode::Segmented,
+            rustautogui::MatchMode::SegmentedOcl,
             "topjungle offset for portrait",
         )?;
         self.rustautogui.store_template_from_file(
             "lock_in_images/Lock in.png",
             self.window_size,
-            rustautogui::MatchMode::Segmented,
+            rustautogui::MatchMode::SegmentedOclV2,
             "Lock in",
         )?;
         self.templates_loaded = true;
@@ -98,17 +100,17 @@ pub fn start_queue_lock_in(champion: &str) -> Result<(), LockInError> {
         .load_templates()
         .expect("Failed to load templates");
 
-    if let Err(_) = rustautogui
+    if let Err(e) = rustautogui
         .rustautogui
         .find_stored_image_on_screen_and_move_mouse(0.8, 0.0, "Find match")
     {
-        panic!("Failed to find image and move mouse")
+        panic!("{e}")
     }
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
 
-    let _ = rustautogui 
+    let _ = rustautogui
         .rustautogui
-        .loop_find_stored_image_on_screen_and_move_mouse(0.8, 0.1, 180, "Accept match"); // i think 3 minutes should be enough time to leave it as automatic but i can incrase ig but i need more time to test
+        .loop_find_stored_image_on_screen_and_move_mouse(0.6, 0.1, 180, "Accept match"); // i think 3 minutes should be enough time to leave it as automatic but i can incrase ig but i need more time to test
 
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
 
@@ -152,18 +154,18 @@ fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<
                 let coords = coords[0];
                 let _ = rustautogui
                     .rustautogui
-                    .move_mouse_to_pos(coords.0 + 5, coords.1 + 40, 0.1);
+                    .move_mouse_to_pos(coords.0 + 5, coords.1 + 40, 0.2);
             }
         }
         Err(_) => return Err(LockInError),
     }
+    thread::sleep(Duration::from_secs(1));
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
 
     let _ = rustautogui.move_and_click_on_template("Lock in", true);
-
+    thread::sleep(Duration::from_secs(1));
+    let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
     println!("Successfully locked in");
-
-
 
     Ok(())
 }
