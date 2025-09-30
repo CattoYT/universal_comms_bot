@@ -47,73 +47,48 @@ fn main() {
     }
 }
 
-// both of these funcs are very shitcoded and tbh need rewrites (i havent even finished writing them yet)
-
+// oh hey it looks a lot better now
 fn check_for_league_and_return_managers(
     managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>,
 ) -> Option<()> {
-    //TODO: NEEDS REFACTOR -> check league game first you fucking buffoon
-
     let mut system = sysinfo::System::new();
     system.refresh_processes(ProcessesToUpdate::All, true);
-    //league check
-    let mut x = system.processes_by_name("LeagueClient".as_ref()).peekable();
-    if x.peek().is_none() {
-        //league client not open
-        println!("The League client is not open! Checking League game...");
-        x = system
-            .processes_by_name("League of Legends".as_ref())
-            .peekable(); //check if game is already open
 
-        if x.peek().is_none() {
-            // * league client closed, game closed
-            return None;
-        } else {
-            // * league client closed game open
-
-            //league game is already open
-            //this branch will almost never be reached cuz most people dont turn on the setting where the league client closes when the game is open
-            // may as well account for it tho
-            managers.push(league::minimap::process_map_data);
-            return Some(());
-        }
-    } else {
-        x = system
-            .processes_by_name("League of Legends".as_ref())
-            .peekable();
-
-        if x.peek().is_none() {
-            // * league client open game closed
-            println!("League Game not found. Initiating lock in...");
-            {
-                let mut champion = String::new();
-                println!(
-                    "when in the start queue menu, enter your champion below and press enter: \n"
-                );
-                let _ = io::stdin().read_line(&mut champion);
-                match managers::league::lock_in::start_queue_lock_in(&champion) {
-                    Ok(_) => {
-                        // locking in was successful
-                    }
-                    Err(_) => {
-                        //shit happened, let user do it tehemslef
-                        println!(
-                            "Failed to start queue. Please press enter once you have entered the game."
-                        );
-                        let mut rust_skill_issue = String::new();
-                        let _ = io::stdin().read_line(&mut rust_skill_issue);
-                    }
+    let mut game_check = system
+        .processes_by_name("League of Legends".as_ref())
+        .peekable();
+    if game_check.peek().is_some() {
+        println!("League game found!");
+        managers.push(league::minimap::process_map_data);
+        return Some(());
+    }
+    println!("League game not found! Checking client...");
+    let mut client_check = system.processes_by_name("LeagueClient".as_ref()).peekable();
+    if client_check.peek().is_some() {
+        println!("League Client found!");
+        {
+            let mut champion = String::new();
+            println!(
+                "When in the start queue menu, enter your champion below and press enter. 
+                \nAlso quickly alt tab to the league window and ensure its the focused window!: 
+                \nChampion: "
+            );
+            let _ = io::stdin().read_line(&mut champion);
+            if let Err(_) = managers::league::lock_in::start_queue_lock_in(&champion) {
+                    //shit happened, let user do it tehemslef
+                    println!(
+                        "Failed to start queue. Please press enter once you have entered the game."
+                    );
+                    let mut rust_skill_issue = String::new();
+                    let _ = io::stdin().read_line(&mut rust_skill_issue);
                 }
-                managers.push(league::minimap::process_map_data);
-                return Some(());
-            }
-        } else {
-            // * league client and game is open
-            println!("League game found. ");
+            
             managers.push(league::minimap::process_map_data);
             return Some(());
         }
     }
+
+    None
 }
 // fn check_for_valorant_and_return_managers(managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>) -> Option<()> {
 //     {

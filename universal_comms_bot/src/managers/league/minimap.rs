@@ -103,7 +103,7 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
                         rodio::OutputStreamBuilder::open_default_stream().expect("bro what");
                     let mixer = stream_handle.mixer();
                     let file = BufReader::new(
-                        File::open("universal_comms_bot\\sfx\\Retreat_ping_SFX.ogg").unwrap(),
+                        File::open("sfx/Retreat_ping_SFX.ogg").unwrap(),
                     );
 
                     let sink = rodio::play(mixer, BufReader::new(file)).unwrap();
