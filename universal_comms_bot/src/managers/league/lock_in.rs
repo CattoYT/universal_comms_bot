@@ -10,18 +10,17 @@ struct RustAutoGuiHelper {
     templates_loaded: bool,
 }
 impl Default for RustAutoGuiHelper {
-    fn default() -> Self { RustAutoGuiHelper::new() }
+    fn default() -> Self {
+        RustAutoGuiHelper::new()
+    }
 }
 impl RustAutoGuiHelper {
     pub fn new() -> Self {
-        let window_size = Some(Monitor::primary().map(|m| {
-            (
-                0,
-                0,
-                m.width().unwrap_or(0),
-                m.height().unwrap_or(0),
-            )
-        }).unwrap());
+        let window_size = Some(
+            Monitor::primary()
+                .map(|m| (0, 0, m.width().unwrap_or(0), m.height().unwrap_or(0)))
+                .unwrap(),
+        );
 
         RustAutoGuiHelper {
             window_size,
@@ -29,17 +28,31 @@ impl RustAutoGuiHelper {
             templates_loaded: false,
         }
     }
-    fn move_and_click_on_template(&mut self, template: &str) -> Result<(), AutoGuiError> {
-        self.rustautogui
-            .find_stored_image_on_screen_and_move_mouse(0.8, 0.05, template)?;
+    fn move_and_click_on_template(
+        &mut self,
+        template: &str,
+        do_loop: bool,
+    ) -> Result<(), AutoGuiError> {
+        if do_loop {
+            self.rustautogui
+                .loop_find_stored_image_on_screen_and_move_mouse(0.8, 0.05, 180, template)?;
+        } else {
+            self.rustautogui
+                .find_stored_image_on_screen_and_move_mouse(0.8, 0.05, template)?;
+        }
         Ok(())
     }
     fn load_templates(&mut self) -> Result<(), AutoGuiError> {
         //if this fails then cd into the universal_comms_bot folder it will work then lol
         // for release il just zip the images together
-        
+        if let Err(_) = self.rustautogui.change_ocl_device(0) {
+            println!("Failed to use opencl! I highly recommend using it, but I will proceed.")
+        } // this might not work, so just like be aware
+
         if self.templates_loaded {
-            return Err(AutoGuiError::ImgError("The templates are already loaded!".to_string()))
+            return Err(AutoGuiError::ImgError(
+                "The templates are already loaded!".to_string(),
+            ));
         }
 
         self.rustautogui.store_template_from_file(
@@ -93,7 +106,7 @@ pub fn start_queue_lock_in(champion: &str) -> Result<(), LockInError> {
     }
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
 
-    let _ = rustautogui
+    let _ = rustautogui 
         .rustautogui
         .loop_find_stored_image_on_screen_and_move_mouse(0.8, 0.1, 180, "Accept match"); // i think 3 minutes should be enough time to leave it as automatic but i can incrase ig but i need more time to test
 
@@ -104,8 +117,9 @@ pub fn start_queue_lock_in(champion: &str) -> Result<(), LockInError> {
     Ok(())
 }
 
-fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<(), LockInError> { // rtemove pub from this later
-// pub fn lock_champion(champion: &str) -> Result<(), LockInError> {
+fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<(), LockInError> {
+    // rtemove pub from this later
+    // pub fn lock_champion(champion: &str) -> Result<(), LockInError> {
     // rtemove pub from this later
 
     // let mut rustautogui: RustAutoGuiHelper = RustAutoGuiHelper {
@@ -122,7 +136,7 @@ fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<
     //     .load_templates()
     //     .expect("Failed to load templates");
 
-    let _ = rustautogui.move_and_click_on_template("Search bar");
+    let _ = rustautogui.move_and_click_on_template("Search bar", true);
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
 
     let _ = rustautogui.rustautogui.keyboard_input(champion);
@@ -145,9 +159,11 @@ fn lock_champion(champion: &str, rustautogui: &mut RustAutoGuiHelper) -> Result<
     }
     let _ = rustautogui.rustautogui.click(rustautogui::MouseClick::LEFT);
 
-    let _ = rustautogui.move_and_click_on_template("Lock in");
+    let _ = rustautogui.move_and_click_on_template("Lock in", true);
 
     println!("Successfully locked in");
+
+
 
     Ok(())
 }

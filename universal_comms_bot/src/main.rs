@@ -1,5 +1,6 @@
 use std::{
     io::{self, Read, Stdin},
+    process::exit,
     sync::Arc,
 };
 
@@ -13,7 +14,7 @@ use crate::{managers::league, screenshots::frame::FrameData};
 fn main() {
     println!("Hello, world!");
 
-    let mut managers: Vec<fn(Receiver<Arc<FrameData>>)> = vec![league::minimap::process_map_data];
+    let mut managers: Vec<fn(Receiver<Arc<FrameData>>)> = vec![];
     // TODO: actually make sure this doesnt error cuz idk rust well enough to tell if having 2 mut refs like that will piss off the borrow checker
     if check_for_league_and_return_managers(&mut managers).is_none() {
         // check_for_valorant_and_return_managers(&mut managers);
@@ -22,6 +23,10 @@ fn main() {
     let (raw_screenshot_recv, screenshot_controller) =
         screenshots::capture::spawn_screenshotting_thread();
 
+    if managers.len() == 0 {
+        println!("No games found.");
+        exit(0)
+    }
     let mut channels = vec![];
 
     for x in managers.iter() {
@@ -29,7 +34,6 @@ fn main() {
         channels.push(consumer_sender);
         x(consumer_recv);
     }
-
     std::thread::spawn(move || {
         loop {
             let screenshot = Arc::new(raw_screenshot_recv.recv().unwrap());

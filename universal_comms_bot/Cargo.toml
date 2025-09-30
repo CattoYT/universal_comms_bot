@@ -12,4 +12,5 @@ processor_shared = { path = "../processor_shared" }
 opencv = "0.96.0"
 rodio = "0.21.1"
 sysinfo = "0.37.1"
-rustautogui = "2.5.0"
+rustautogui = { version = "2.5.0", features = ["opencl"] }
+
