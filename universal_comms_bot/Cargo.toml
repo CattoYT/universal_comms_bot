@@ -7,10 +7,15 @@ default-run = "universal_comms_bot"
 [dependencies]
 
 crossbeam = "0.8.4"
-windows-capture = "2.0.0-alpha.1"
+
 processor_shared = { path = "../processor_shared" }
 opencv = "0.96.0"
 rodio = "0.21.1"
 sysinfo = "0.37.1"
 rustautogui = { version = "2.5.0", features = ["opencl"] }
 
+[target.'cfg(windows)'.dependencies]
+windows-capture = "2.0.0-alpha.1"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+xcap = "0.7.1"
