@@ -63,7 +63,7 @@ impl GraphicsCaptureApiHandler for Capture {
             .send(frame_data)
             .map_err(|e: crossbeam::channel::SendError<FrameData>| Box::new(e) as Self::Error);
 
-        sleep(Duration::from_millis(1000 / 1)); //improvised delay cuz the other one isnt supported?
+        sleep(Duration::from_millis(1000 / 10)); //improvised delay cuz the other one isnt supported?
         // replace second value with desired frame rate
         result
     }

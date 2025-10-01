@@ -3,11 +3,13 @@
 use std::sync::Arc;
 
 use crossbeam::channel::Receiver;
-use opencv::core::Mat;
+use opencv::{core::Mat, highgui};
 
 use crate::screenshots::frame::FrameData;
 
-pub fn find_red_enemies(consumer_recv: Receiver<Arc<FrameData>>) {
+
+pub fn process_valorant(consumer_recv: Receiver<Arc<FrameData>>) {
+    println!("Started valorant detection");
     std::thread::spawn(move || {
         loop {
             let raw_image_data = consumer_recv.recv().unwrap();
@@ -23,14 +25,10 @@ pub fn find_red_enemies(consumer_recv: Receiver<Arc<FrameData>>) {
                 }
             };
 
+            let processed_image = processor_shared::valorant::enemy_pixel_detection::mask_image_for_enemies(&raw_image).unwrap();
+            highgui::imshow("Val output", &processed_image).unwrap();
 
+            let _ = highgui::wait_key(1);
         }
     });
-}
-
-pub fn mask_image_for_enemies(img: Mat) {
-    //todo: Find colours for colourblind settings cuz i dont even use red myself lmao i stole the value from a pixelbot on github
-    // # Color detection settings (HSV)
-    // self.lower_color = np.array([150, 76,  123])
-    // self.upper_color = np.array([160, 197, 255])
 }

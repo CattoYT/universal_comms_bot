@@ -17,7 +17,7 @@ fn main() {
     let mut managers: Vec<fn(Receiver<Arc<FrameData>>)> = vec![];
     // TODO: actually make sure this doesnt error cuz idk rust well enough to tell if having 2 mut refs like that will piss off the borrow checker
     if check_for_league_and_return_managers(&mut managers).is_none() {
-        // check_for_valorant_and_return_managers(&mut managers);
+        check_for_valorant_and_return_managers(&mut managers);
     }
 
     if managers.len() == 0 {
@@ -87,23 +87,22 @@ fn check_for_league_and_return_managers(
 
     None
 }
-// fn check_for_valorant_and_return_managers(managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>) -> Option<()> {
-//     {
-//         //Valorant check
-//         let mut system = sysinfo::System::new();
-//         system.refresh_processes(ProcessesToUpdate::All, true);
-//         let mut x = system.processes_by_name("LeagueClient".as_ref()).peekable();
-//         match x.peek() {
-//             Some(_) => {
-//                 todo!("Add valorant managers and modules");
-//                 managers.push();
-//                 return Some(())
-//             }
-//             None => {
-//                 println!("Valorant is not open!");
-//                 return None
-//             }
-//         }
+fn check_for_valorant_and_return_managers(managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>) -> Option<()> {
+    {
+        //Valorant check
+        let mut system = sysinfo::System::new();
+        system.refresh_processes(ProcessesToUpdate::All, true);
+        let mut x = system.processes_by_name("VALORANT".as_ref()).peekable();
+        match x.peek() {
+            Some(_) => {
+                managers.push(managers::valorant::enemy_detection::process_valorant);
+                return Some(())
+            }
+            None => {
+                println!("Valorant is not open!");
+                return None
+            }
+        }
 
-//     }
-// }
+    }
+}

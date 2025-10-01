@@ -6,11 +6,11 @@ use opencv::{
     prelude::*,
 };
 
+use crate::opencv_bullshit_colour_from_rgba;
+
 type Error = opencv::error::Error;
 
-const fn opencv_bullshit_colour_from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Scalar {
-    Scalar::new(blue as f64, green as f64, red as f64, alpha as f64)
-}
+
 
 pub struct Detections {
     pub total: u8,

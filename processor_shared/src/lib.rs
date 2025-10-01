@@ -1,9 +1,8 @@
 use opencv::{
-    Error,
-    core::{Mat, MatTraitConst, Vector},
-    imgcodecs, imgproc,
+    core::{Mat, MatTraitConst, Scalar, Vector}, imgcodecs, imgproc, Error
 };
 pub mod league;
+pub mod valorant;
 
 pub fn convert_image_data(height: u32, data: &Vec<u8>) -> Result<Mat, Error> {
     let binding = Mat::from_slice(data).unwrap();
@@ -42,4 +41,7 @@ pub fn save_as_image(mat: &Mat, filename: &str) -> Result<(), Error> {
             message: "Failed to save image data".to_string(),
         });
     }
+}
+const fn opencv_bullshit_colour_from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Scalar {
+    Scalar::new(blue as f64, green as f64, red as f64, alpha as f64)
 }
