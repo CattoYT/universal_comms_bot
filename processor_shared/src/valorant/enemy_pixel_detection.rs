@@ -20,7 +20,7 @@ pub fn mask_image_for_enemies(img: &Mat) -> Result<Mat, Error> {
     )?;
     in_range(
         img,
-        &opencv_bullshit_colour_from_rgba(180, 10, 10, 255), //todo: Find colours for colourblind settings cuz i dont even use red myself lmao i stole the value from a pixelbot on github
+        &opencv_bullshit_colour_from_rgba(170, 10, 10, 255), //todo: Find colours for colourblind settings cuz i dont even use red myself lmao i stole the value from a pixelbot on github
         &opencv_bullshit_colour_from_rgba(255, 60, 60, 255),
         &mut result_image,
     )?;
