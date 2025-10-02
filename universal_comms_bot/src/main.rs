@@ -8,7 +8,7 @@ use crossbeam::channel::Receiver;
 use sysinfo::{self, ProcessesToUpdate};
 mod managers;
 mod screenshots;
-
+pub mod autogui;
 use crate::{managers::league, screenshots::frame::FrameData};
 
 
