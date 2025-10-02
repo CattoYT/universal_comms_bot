@@ -71,7 +71,7 @@ fn type_warning(autogui: &mut RustAutoGuiHelper) -> Result<Instant, AutoGuiError
     let message = "one guy here";
 
     autogui.rustautogui.keyboard_command("return")?;
-    sleep(Duration::from_millis(300));
+    sleep(Duration::from_millis(50));
 
     for char in message.chars() {
         autogui.rustautogui.key_down(&char.to_string())?;
