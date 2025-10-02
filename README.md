@@ -18,5 +18,8 @@ TODO:
 - [x] auto lock in
 
 ### Valorant
-- [ ] TTS
 - [ ] Enemy detection
+
+### Honkai star rail
+This was added cuz I genuinely dont like valorant as much as I did when i wrote VCB  
+I needed to reach the hours lmao

@@ -6,11 +6,10 @@ use std::{
 
 use crossbeam::channel::Receiver;
 use sysinfo::{self, ProcessesToUpdate};
+pub mod autogui;
 mod managers;
 mod screenshots;
-pub mod autogui;
 use crate::{managers::league, screenshots::frame::FrameData};
-
 
 fn main() {
     println!("Hello, world!");
@@ -26,10 +25,7 @@ fn main() {
         exit(0)
     }
 
-
-    let raw_screenshot_recv =
-    
-        screenshots::capture::spawn_screenshotting_thread();
+    let raw_screenshot_recv = screenshots::capture::spawn_screenshotting_thread();
     let mut channels = vec![];
 
     for x in managers.iter() {
@@ -48,6 +44,27 @@ fn main() {
     loop {
         std::thread::sleep(std::time::Duration::from_secs(1));
     }
+}
+
+fn check_for_star_rail_and_return_managers(
+    managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>,
+) -> Option<()> {
+    //Valorant check
+    let mut system = sysinfo::System::new();
+    system.refresh_processes(ProcessesToUpdate::All, true);
+    let mut x = system.processes_by_name("Star Rail".as_ref()).peekable();
+    match x.peek() {
+        Some(_) => {
+            managers.push(managers::hsr::divergent_universe_spammer::spam_divergent_universe);
+            return Some(());
+        }
+        None => {
+            println!("Valorant is not open!");
+            return None;
+        }
+    }
+
+    None
 }
 
 // oh hey it looks a lot better now
@@ -91,7 +108,9 @@ fn check_for_league_and_return_managers(
 
     None
 }
-fn check_for_valorant_and_return_managers(managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>) -> Option<()> {
+fn check_for_valorant_and_return_managers(
+    managers: &mut Vec<fn(Receiver<Arc<FrameData>>)>,
+) -> Option<()> {
     {
         //Valorant check
         let mut system = sysinfo::System::new();
@@ -100,13 +119,12 @@ fn check_for_valorant_and_return_managers(managers: &mut Vec<fn(Receiver<Arc<Fra
         match x.peek() {
             Some(_) => {
                 managers.push(managers::valorant::enemy_detection::process_valorant);
-                return Some(())
+                return Some(());
             }
             None => {
                 println!("Valorant is not open!");
-                return None
+                return None;
             }
         }
-
     }
 }

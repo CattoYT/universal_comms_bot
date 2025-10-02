@@ -1,0 +1,1 @@
+pub mod divergent_universe_spammer;
