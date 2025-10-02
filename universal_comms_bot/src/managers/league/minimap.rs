@@ -118,35 +118,36 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
     });
 }
 
-fn find_new_enemies(
-    current: &Option<Vec<Enemy>>,
-    last: &Option<Vec<Enemy>>,
-    tol: f32,
-) -> Vec<Enemy> {
-    match current {
-        None => Vec::new(),
-        Some(curr_vec) => {
-            // if there's no last, everything is new
-            let last_vec = match last {
-                Some(v) => v,
-                None => return curr_vec.clone(),
-            };
-            let mut new = Vec::new();
-            'outer: for e in curr_vec.iter().cloned() {
-                for old in last_vec.iter() {
-                    if is_same_enemy(&e, old, tol) {
-                        continue 'outer; // found match -> not new
-                    }
-                }
-                new.push(e);
-            }
-            new
-        }
-    }
-}
-fn is_same_enemy(a: &Enemy, b: &Enemy, tol: f32) -> bool {
-    (a.x - b.x).abs() <= tol && (a.y - b.y).abs() <= tol
-}
+// both of these are for positional stuff, but i have no idea how to find out if the same circle is the same circle but in a different position, or a new enemy :/
+// fn find_new_enemies(
+//     current: &Option<Vec<Enemy>>,
+//     last: &Option<Vec<Enemy>>,
+//     tol: f32,
+// ) -> Vec<Enemy> {
+//     match current {
+//         None => Vec::new(),
+//         Some(curr_vec) => {
+//             // if there's no last, everything is new
+//             let last_vec = match last {
+//                 Some(v) => v,
+//                 None => return curr_vec.clone(),
+//             };
+//             let mut new = Vec::new();
+//             'outer: for e in curr_vec.iter().cloned() {
+//                 for old in last_vec.iter() {
+//                     if is_same_enemy(&e, old, tol) {
+//                         continue 'outer; // found match -> not new
+//                     }
+//                 }
+//                 new.push(e);
+//             }
+//             new
+//         }
+//     }
+// }
+// fn is_same_enemy(a: &Enemy, b: &Enemy, tol: f32) -> bool {
+//     (a.x - b.x).abs() <= tol && (a.y - b.y).abs() <= tol
+// }
 
 fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     let x = coord[0];

@@ -3,11 +3,10 @@
 use std::{sync::Arc, thread::sleep, time::{Duration, Instant}};
 
 use crossbeam::channel::Receiver;
-use opencv::{core::Mat, highgui};
 use rustautogui::errors::AutoGuiError;
 
 use crate::{
-    autogui::{self, RustAutoGuiHelper},
+    autogui::{RustAutoGuiHelper},
     screenshots::frame::FrameData,
 };
 

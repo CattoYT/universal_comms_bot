@@ -1,5 +1,5 @@
 use std::{
-    io::{self, Read, Stdin},
+    io,
     process::exit,
     sync::Arc,
 };
@@ -15,9 +15,15 @@ fn main() {
     println!("Hello, world!");
 
     let mut managers: Vec<fn(Receiver<Arc<FrameData>>)> = vec![];
-    // TODO: actually make sure this doesnt error cuz idk rust well enough to tell if having 2 mut refs like that will piss off the borrow checker
+    //this looks really ugly, but i dont want it to bother with checking if the game is already found lol
+    // also since this is only screenreading i dont need to bother with multiple games open tbh
+    // in retrospect a lot of this code can be refactored to take that into account lmao
+    // gj me 
     if check_for_league_and_return_managers(&mut managers).is_none() {
-        check_for_valorant_and_return_managers(&mut managers);
+        if check_for_valorant_and_return_managers(&mut managers).is_none() {
+            if check_for_star_rail_and_return_managers(&mut managers).is_none() {
+            }
+        }
     }
 
     if managers.len() == 0 {
@@ -59,12 +65,11 @@ fn check_for_star_rail_and_return_managers(
             return Some(());
         }
         None => {
-            println!("Valorant is not open!");
+            println!("Star rail is not open!");
             return None;
         }
     }
 
-    None
 }
 
 // oh hey it looks a lot better now

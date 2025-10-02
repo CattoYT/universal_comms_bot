@@ -10,8 +10,17 @@ use crate::{autogui::RustAutoGuiHelper, screenshots::frame::FrameData};
 
 pub fn spam_divergent_universe(consumer_recv: Receiver<Arc<FrameData>>) {
     std::thread::spawn(move || {
-        let frame_data = consumer_recv.recv().unwrap();
-        run_divergent_universe(frame_data)
+        let mut _du_counter = 0; //left the underscore there as a temporary "compiler stfu please"
+        loop {
+            let frame_data = consumer_recv.recv().unwrap();
+            match run_divergent_universe(frame_data) {
+                Ok(_) => {
+                    println!("Successfully completed DU run");
+                    _du_counter +=1;
+                },
+                Err(e) => println!("{e}")
+            }
+        }
     });
 }
 

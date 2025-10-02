@@ -8,7 +8,7 @@ use crossbeam::channel::{Receiver, Sender, unbounded};
 
 #[cfg(target_os = "windows")]
 use windows_capture::{
-    capture::{CaptureControl, Context, GraphicsCaptureApiHandler},
+    capture::{Context, GraphicsCaptureApiHandler},
     frame::Frame,
     graphics_capture_api::InternalCaptureControl,
     monitor::Monitor,

@@ -1,7 +1,6 @@
 use std::{thread, time::Duration};
 
-use rustautogui::{RustAutoGui, errors::AutoGuiError};
-use windows_capture::monitor::Monitor;
+use rustautogui;
 
 use crate::autogui::RustAutoGuiHelper; //todo make this macos compatible
 
