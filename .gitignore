@@ -2,3 +2,4 @@
 /opencv
 cargo.lock
 /.cargo
+.DS_STORE

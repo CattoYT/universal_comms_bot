@@ -1,7 +1,7 @@
 use std::{thread, time::Duration};
 
 use rustautogui::{RustAutoGui, errors::AutoGuiError};
-use windows_capture::monitor::Monitor;
+use windows_capture::monitor::Monitor; //todo make this macos compatible
 
 #[derive(Debug, Clone, Copy)]
 pub struct LockInError;

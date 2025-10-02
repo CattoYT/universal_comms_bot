@@ -11,6 +11,7 @@ mod screenshots;
 
 use crate::{managers::league, screenshots::frame::FrameData};
 
+
 fn main() {
     println!("Hello, world!");
 
@@ -24,7 +25,10 @@ fn main() {
         println!("No games found.");
         exit(0)
     }
-    let (raw_screenshot_recv, screenshot_controller) =
+
+
+    let raw_screenshot_recv =
+    
         screenshots::capture::spawn_screenshotting_thread();
     let mut channels = vec![];
 
