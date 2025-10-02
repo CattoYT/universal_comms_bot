@@ -20,8 +20,8 @@ pub fn mask_image_for_enemies(img: &Mat) -> Result<Mat, Error> {
     )?;
     in_range(
         img,
-        &opencv_bullshit_colour_from_rgba(170, 10, 10, 255), //todo: Find colours for colourblind settings cuz i dont even use red myself lmao i stole the value from a pixelbot on github
-        &opencv_bullshit_colour_from_rgba(255, 60, 60, 255),
+        &opencv_bullshit_colour_from_rgba(240, 240, 0, 255), //todo: Find colours for colourblind settings cuz i dont even use red myself lmao i stole the value from a pixelbot on github
+        &opencv_bullshit_colour_from_rgba(255, 255, 110, 255),
         &mut result_image,
     )?;
 
@@ -29,6 +29,7 @@ pub fn mask_image_for_enemies(img: &Mat) -> Result<Mat, Error> {
     let mut blob_params = SimpleBlobDetector_Params::default().unwrap();
     blob_params.blob_color = 255;
     blob_params.filter_by_color = true;
+    blob_params.min_area = 3.;
 
     //chatgpt trying to help here
     let kernel = imgproc::get_structuring_element(
@@ -47,15 +48,16 @@ pub fn mask_image_for_enemies(img: &Mat) -> Result<Mat, Error> {
     )?;
     //end of cgpt
 
-    //todo: find out how to get a consistent blob cuz i dont want to implement yolov8 again lmao
 
     let mut blob_detector: opencv::core::Ptr<SimpleBlobDetector> =
         SimpleBlobDetector::create(blob_params).unwrap();
     let mut keypoints: Vector<KeyPoint> = Vector::new();
 
-    blob_detector.detect_def(&result_image, &mut keypoints);
+    let _ = blob_detector.detect_def(&result_image, &mut keypoints);
     let centers: Vec<Point2f> = keypoints.iter().map(|k| k.pt()).collect();
-    println!("{:?}", centers);
+    if centers.len() > 0 {
+        println!("There is most definitely an enemy here"); // I am really bad at opencv, so without machine learning, this is the best, reliable output i can reasonably give
+    }
     Ok(result_image)
 
     // Err(Error::new(0, "Failed to mask image"))

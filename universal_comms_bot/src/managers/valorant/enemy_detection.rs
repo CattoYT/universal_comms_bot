@@ -29,6 +29,7 @@ pub fn process_valorant(consumer_recv: Receiver<Arc<FrameData>>) {
             highgui::imshow("Val output", &processed_image).unwrap();
 
             let _ = highgui::wait_key(1);
+            
         }
     });
 }

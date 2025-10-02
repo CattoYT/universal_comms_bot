@@ -3,10 +3,8 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crossbeam::channel::{Receiver, Sender, unbounded};
 use crate::screenshots::frame::{self, FrameData};
-
-
+use crossbeam::channel::{Receiver, Sender, unbounded};
 
 #[cfg(target_os = "windows")]
 use windows_capture::{
@@ -79,9 +77,7 @@ impl GraphicsCaptureApiHandler for Capture {
 }
 
 #[cfg(target_os = "windows")]
-pub fn spawn_screenshotting_thread() -> (
-    Receiver<FrameData>,
-) {
+pub fn spawn_screenshotting_thread() -> Receiver<FrameData> {
     let (send, recv) = unbounded();
 
     let settings = Settings::new(
@@ -100,20 +96,17 @@ pub fn spawn_screenshotting_thread() -> (
 
     let capture_thread = Capture::start_free_threaded(settings).unwrap();
 
-    (recv, capture_thread)
+    recv
 }
 
 #[cfg(target_os = "macos")]
-pub fn spawn_screenshotting_thread() -> 
-    Receiver<FrameData>
- {
+pub fn spawn_screenshotting_thread() -> Receiver<FrameData> {
     let (send, recv) = unbounded();
 
-
-
-    // let capturer: Result<Capture, Box<dyn Error + Send + Sync>> = Capture::new(settings);
+    let capturer: Result<>;
 
     // let capture_thread = Capture::start_free_threaded(settings).unwrap();
+    
 
     recv
 }
