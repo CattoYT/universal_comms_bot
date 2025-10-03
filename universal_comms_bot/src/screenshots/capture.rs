@@ -94,7 +94,8 @@ pub fn spawn_screenshotting_thread() -> Receiver<FrameData> {
 
     // let capturer: Result<Capture, Box<dyn Error + Send + Sync>> = Capture::new(settings);
 
-    let capture_thread = Capture::start_free_threaded(settings).unwrap();
+    // let capture_thread = Capture::start_free_threaded(settings).unwrap();
+    let _ = Capture::start_free_threaded(settings).unwrap();
 
     recv
 }

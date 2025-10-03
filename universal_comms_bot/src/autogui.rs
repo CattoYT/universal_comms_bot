@@ -1,21 +1,20 @@
-use rustautogui::{errors::AutoGuiError, RustAutoGui};
+use rustautogui::{RustAutoGui, errors::AutoGuiError};
 
 pub enum Game {
     VALORANT,
-    LEAGUE
+    LEAGUE,
+    HSR,
 }
 
-fn get_monitor_size() -> Option<(u32,u32,u32,u32)> { //could find a way to make this a little cleaner
+fn get_monitor_size() -> Option<(u32, u32, u32, u32)> {
+    //could find a way to make this a little cleaner
     let mut temp_gui = RustAutoGui::new(false).unwrap();
-    
 
     let (x, y) = temp_gui.get_screen_size();
 
     Some((0, 0, x as u32, y as u32))
-    
 }
 
- 
 pub struct RustAutoGuiHelper {
     pub window_size: Option<(u32, u32, u32, u32)>,
     pub rustautogui: RustAutoGui,
@@ -35,7 +34,6 @@ impl RustAutoGuiHelper {
             rustautogui: rustautogui::RustAutoGui::new(false).unwrap(),
             templates_loaded: false,
         }
-
     }
     pub fn move_and_click_on_template(
         &mut self,
@@ -63,45 +61,49 @@ impl RustAutoGuiHelper {
             ));
         }
         match game {
-            Game::VALORANT => {},
+            Game::VALORANT => {}
             Game::LEAGUE => {
-                        self.rustautogui.store_template_from_file(
-            "lock_in_images/Find Match.png",
-            self.window_size,
-            rustautogui::MatchMode::SegmentedOcl,
-            "Find match",
-        )?;
-        self.rustautogui.store_template_from_file(
-            "lock_in_images/Accept Match.png",
-            self.window_size,
-            rustautogui::MatchMode::SegmentedOcl,
-            "Accept match",
-        )?;
-        self.rustautogui.store_template_from_file(
-            "lock_in_images/Search Bar.png",
-            self.window_size,
-            rustautogui::MatchMode::SegmentedOcl,
-            "Search bar",
-        )?;
-        self.rustautogui.store_template_from_file(
-            "lock_in_images/Offset down for champ portrait.png",
-            self.window_size,
-            rustautogui::MatchMode::SegmentedOcl,
-            "topjungle offset for portrait",
-        )?;
-        self.rustautogui.store_template_from_file(
-            "lock_in_images/Lock in.png",
-            self.window_size,
-            rustautogui::MatchMode::SegmentedOclV2,
-            "Lock in",
-        )?;
-        self.templates_loaded = true;
+                self.rustautogui.store_template_from_file(
+                    "lock_in_images/Find Match.png",
+                    self.window_size,
+                    rustautogui::MatchMode::SegmentedOcl,
+                    "Find match",
+                )?;
+                self.rustautogui.store_template_from_file(
+                    "lock_in_images/Accept Match.png",
+                    self.window_size,
+                    rustautogui::MatchMode::SegmentedOcl,
+                    "Accept match",
+                )?;
+                self.rustautogui.store_template_from_file(
+                    "lock_in_images/Search Bar.png",
+                    self.window_size,
+                    rustautogui::MatchMode::SegmentedOcl,
+                    "Search bar",
+                )?;
+                self.rustautogui.store_template_from_file(
+                    "lock_in_images/Offset down for champ portrait.png",
+                    self.window_size,
+                    rustautogui::MatchMode::SegmentedOcl,
+                    "topjungle offset for portrait",
+                )?;
+                self.rustautogui.store_template_from_file(
+                    "lock_in_images/Lock in.png",
+                    self.window_size,
+                    rustautogui::MatchMode::SegmentedOclV2,
+                    "Lock in",
+                )?;
+                self.templates_loaded = true;
+            }
+            Game::HSR => {
+                // self.rustautogui.store_template_from_file(
+                //     "hsr_images/du/",
+                //     self.window_size,
+                //     rustautogui::MatchMode::SegmentedOclV2,
+                //     "Lock in",
+                // )?;
             }
         }
-
-
-
-
 
         Ok(())
     }
