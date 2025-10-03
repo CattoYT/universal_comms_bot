@@ -1,11 +1,21 @@
 use rustautogui::{errors::AutoGuiError, RustAutoGui};
-use windows_capture::monitor::Monitor;
 
 pub enum Game {
     VALORANT,
     LEAGUE
 }
 
+fn get_monitor_size() -> Option<(u32,u32,u32,u32)> { //could find a way to make this a little cleaner
+    let mut temp_gui = RustAutoGui::new(false).unwrap();
+    
+
+    let (x, y) = temp_gui.get_screen_size();
+
+    Some((0, 0, x as u32, y as u32))
+    
+}
+
+ 
 pub struct RustAutoGuiHelper {
     pub window_size: Option<(u32, u32, u32, u32)>,
     pub rustautogui: RustAutoGui,
@@ -18,17 +28,14 @@ impl Default for RustAutoGuiHelper {
 }
 impl RustAutoGuiHelper {
     pub fn new() -> Self {
-        let window_size = Some(
-            Monitor::primary()
-                .map(|m| (0, 0, m.width().unwrap_or(0), m.height().unwrap_or(0)))
-                .unwrap(),
-        );
+        let window_size = get_monitor_size();
 
         RustAutoGuiHelper {
             window_size,
             rustautogui: rustautogui::RustAutoGui::new(false).unwrap(),
             templates_loaded: false,
         }
+
     }
     pub fn move_and_click_on_template(
         &mut self,

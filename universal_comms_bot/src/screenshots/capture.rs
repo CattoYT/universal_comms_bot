@@ -103,7 +103,6 @@ pub fn spawn_screenshotting_thread() -> Receiver<FrameData> {
 pub fn spawn_screenshotting_thread() -> Receiver<FrameData> {
     let (send, recv) = unbounded();
 
-    let capturer: Result<>;
 
     // let capture_thread = Capture::start_free_threaded(settings).unwrap();
     
