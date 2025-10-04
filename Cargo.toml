@@ -1,12 +1,7 @@
 
-
-[workspace.dependencies]
-crossbeam = "0.8.4"
-
 [workspace]
 members = [
     "universal_comms_bot",
-
     "processor_shared"
 
 ]

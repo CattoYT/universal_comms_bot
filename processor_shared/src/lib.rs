@@ -1,5 +1,7 @@
 use opencv::{
-    core::{Mat, MatTraitConst, Scalar, Vector}, imgcodecs, imgproc, Error
+    Error,
+    core::{Mat, MatTraitConst, Scalar, Vector},
+    imgcodecs, imgproc,
 };
 pub mod league;
 pub mod valorant;
@@ -42,6 +44,6 @@ pub fn save_as_image(mat: &Mat, filename: &str) -> Result<(), Error> {
         });
     }
 }
-const fn opencv_bullshit_colour_from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Scalar {
+pub const fn opencv_bullshit_colour_from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Scalar {
     Scalar::new(blue as f64, green as f64, red as f64, alpha as f64)
 }

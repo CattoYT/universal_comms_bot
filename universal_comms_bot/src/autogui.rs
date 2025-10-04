@@ -49,6 +49,15 @@ impl RustAutoGuiHelper {
         }
         Ok(())
     }
+    pub fn move_and_click(
+        &mut self,
+        coords: (u32, u32)
+        
+    ) -> Result<(), AutoGuiError> {
+        self.rustautogui.move_mouse_to_pos(coords.0, coords.1, 0.05);
+        self.rustautogui.left_click();
+        Ok(())
+    }
     pub fn load_templates(&mut self, game: Game) -> Result<(), AutoGuiError> {
         //if this fails then cd into the universal_comms_bot folder it will work then lol
         // for release il just zip the images together

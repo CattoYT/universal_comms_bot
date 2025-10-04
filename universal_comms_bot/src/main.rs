@@ -12,8 +12,6 @@ mod screenshots;
 use crate::{managers::league, screenshots::frame::FrameData};
 
 fn main() {
-    println!("Hello, world!");
-
     let mut managers: Vec<fn(Receiver<Arc<FrameData>>)> = vec![];
     //this looks really ugly, but i dont want it to bother with checking if the game is already found lol
     // also since this is only screenreading i dont need to bother with multiple games open tbh
@@ -58,9 +56,10 @@ fn check_for_star_rail_and_return_managers(
     //Valorant check
     let mut system = sysinfo::System::new();
     system.refresh_processes(ProcessesToUpdate::All, true);
-    let mut x = system.processes_by_name("Star Rail".as_ref()).peekable();
+    let mut x = system.processes_by_name("StarRail".as_ref()).peekable();
     match x.peek() {
         Some(_) => {
+            println!("Star Rail found!");
             managers.push(managers::hsr::divergent_universe_spammer::spam_divergent_universe);
             return Some(());
         }
@@ -110,6 +109,7 @@ fn check_for_league_and_return_managers(
             return Some(());
         }
     }
+    println!("League client not found!");
 
     None
 }
