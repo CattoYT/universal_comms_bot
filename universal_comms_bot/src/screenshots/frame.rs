@@ -13,4 +13,13 @@ impl FrameData {
             width: width,
         }
     }
+
+    
+}
+
+#[cfg(target_os = "macos")]
+impl From<xcap::Frame> for FrameData {
+    fn from(value: xcap::Frame) -> Self {
+        FrameData { raw_buffer: value.raw, height: value.height, width: value.width }
+    }
 }

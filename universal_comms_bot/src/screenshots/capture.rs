@@ -102,11 +102,32 @@ pub fn spawn_screenshotting_thread() -> Receiver<FrameData> {
 
 #[cfg(target_os = "macos")]
 pub fn spawn_screenshotting_thread() -> Receiver<FrameData> {
+    use std::thread;
+
+    use xcap::Monitor;
+
     let (send, recv) = unbounded();
 
-
     // let capture_thread = Capture::start_free_threaded(settings).unwrap();
-    
+    let monitors = Monitor::all().unwrap();
+    let monitor = monitors
+        .into_iter()
+        .find(|m| m.is_primary().unwrap_or(false))
+        .expect("No primary monitor found");
+    let (video_recorder, sx) = monitor.video_recorder().unwrap();
+
+    thread::spawn(move || {
+        loop {
+            match sx.recv() {
+                Ok(frame) => {
+                    println!("frame: {:?}", frame.width);
+                    send.send(FrameData::from(frame)).unwrap(); // theres hopefully a way to frame rate limit this wthout using the screenshotting part of the library
+                    // if not then il cope ig
+                }
+                _ => continue,
+            }
+        }
+    });
 
     recv
 }
