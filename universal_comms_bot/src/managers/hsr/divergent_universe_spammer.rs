@@ -13,18 +13,19 @@ pub fn spam_divergent_universe(consumer_recv: Receiver<Arc<FrameData>>) {
     std::thread::spawn(move || {
         let mut _du_counter = 0; //left the underscore there as a temporary "compiler stfu please"
         let mut stage = 0;
-        // loop {
-        let frame_data = consumer_recv.recv().unwrap();
-
-        match run_divergent_universe(stage, frame_data) {
-            Ok(_) => {
-                stage += 1;
-                consumer_recv.iter(); //flush the queue
+        loop {
+            let frame_data = consumer_recv.recv().unwrap();
+            println!("starting stage {stage}");
+            match run_divergent_universe(stage, frame_data) {
+                Ok(_) => {
+                    stage += 1;
+                }
+                Err(e) => println!("{e}"),
             }
-            Err(e) => println!("{e}"),
+            for x in 0..consumer_recv.len() {
+                drop(consumer_recv.recv())
+            }
         }
-
-        // }
     });
 }
 
@@ -46,30 +47,60 @@ fn run_divergent_universe(stage: u8, frame_data: Arc<FrameData>) -> Result<(), A
             //start divergent run
             let _ =
                 click_with_pixel_check(&autogui.rustautogui, &frame, (1400, 950), (221, 192, 140));
-            sleep(Duration::from_millis(2000));
+            sleep(Duration::from_millis(1000));
+        } // cyclical extrapolation
+        1 => {
+            //check if previous was actually successful
             if check_pixel_colour(&frame, (1400, 950), (221, 192, 140)).unwrap() == true {
                 panic!(
                     "It's likely Star Rail blocked clicks. \nPlease rerun this application with admin perms to use the Divergent Universe bot :/"
                 );
             }
-        } // cyclical extrapolation
-        1 => {
             let _ = autogui.move_and_click((178, 570));
-            sleep(Duration::from_millis(1500));
+            sleep(Duration::from_millis(700));
         } //difficulty 5
         2 => {
             let _ = autogui.move_and_click((128, 609));
-            sleep(Duration::from_millis(300));
+            sleep(Duration::from_millis(500));
+        }
+        3 => {
+            if check_pixel_colour(&frame, (1122, 970), (235, 45, 59)).unwrap() {
+                println!("Acheron confirmed, proceeding");
+                // let _ = click_with_pixel_check(&autogui.rustautogui, &frame, (1688, 960), (225,225,225));
+                autogui.move_and_click((1688, 960));
+                let _ = autogui.rustautogui.loop_find_stored_image_on_screen(
+                    0.8,
+                    30,
+                    "View Obtained Curios",
+                ); //wait for load to finish then proceed
+            } else {
+                todo!("find acheron")
+            }
+        }
+        4 => {
+            let centre = autogui.rustautogui.get_screen_size();
+            let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+            sleep(Duration::from_millis(100));
+            click_with_pixel_check(&autogui.rustautogui, &frame, (1688, 960), (234, 233, 234))
+                .expect("?");
+        }
+        5 => {
+            let centre = autogui.rustautogui.get_screen_size();
+            let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+            sleep(Duration::from_millis(100));
+            click_with_pixel_check(&autogui.rustautogui, &frame, (1032, 982 ), (234, 233, 234))
+                .expect("?");
         }
         _ => {
             println!("How did you get here");
+            panic!("a"); //temp panic for debug
             return Err(AutoGuiError::OSFailure("How".to_string()));
         }
     }
-
     Ok(())
 }
 
+#[derive(Debug)]
 struct DivergentUniverseError(String);
 
 fn click_with_pixel_check(
@@ -94,6 +125,8 @@ fn check_pixel_colour(
 ) -> Result<bool, opencv::Error> {
     let pixel: &Vec4b = image.at_2d(coords.1, coords.0)?;
     let colour_bgr: [u8; 4] = [colour_rgb.2, colour_rgb.1, colour_rgb.0, 255];
+    println!("{:?}", pixel.0);
+
     if pixel.0 == colour_bgr {
         return Ok(true);
     }
@@ -108,12 +141,12 @@ fn check_pixel_colour(
 // (178, 570) click x
 // (128, 609) click x
 // (1150, 969) check if its a pixel on acheron if not then probably can do template matching for acheron
-//      rgb 103,74,156 at (1150, 969) if acheron is first slot
+//      rgb 139,76,108 at (1150, 969) if acheron is first slot x
 
-// (1688, 960) rgb 225,225,225
-// click centre of screen when view obtained curios is available
-// (1688, 960) click
-// click centre
+// (1688, 960) rgb 225,225,225 x
+// click centre of screen when view obtained curios is available x
+// (1688, 960) click x
+// click centre x
 // (1032, 982 ) rgb 234, 233, 234
 
 //tb blessing

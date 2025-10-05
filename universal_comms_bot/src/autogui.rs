@@ -61,9 +61,12 @@ impl RustAutoGuiHelper {
     pub fn load_templates(&mut self, game: Game) -> Result<(), AutoGuiError> {
         //if this fails then cd into the universal_comms_bot folder it will work then lol
         // for release il just zip the images together
-        // if let Err(_) = self.rustautogui.change_ocl_device(0) {
-        //     println!("Failed to use opencl! I highly recommend using it, but I will proceed.")
-        // } // this might not work, so just like be aware
+        let mut match_mode = rustautogui::MatchMode::SegmentedOcl;
+        if let Err(_) = self.rustautogui.change_ocl_device(0) {
+            println!("Failed to use opencl! I highly recommend using it, but I will proceed.");
+            match_mode = rustautogui::MatchMode::Segmented;
+
+        } // this might not work, so just like be aware
         if self.templates_loaded {
             return Err(AutoGuiError::ImgError(
                 "The templates are already loaded!".to_string(),
@@ -99,18 +102,18 @@ impl RustAutoGuiHelper {
                 self.rustautogui.store_template_from_file(
                     "lock_in_images/Lock in.png",
                     self.window_size,
-                    rustautogui::MatchMode::SegmentedOclV2,
+                    rustautogui::MatchMode::SegmentedOcl,
                     "Lock in",
                 )?;
                 self.templates_loaded = true;
             }
             Game::HSR => {
-                // self.rustautogui.store_template_from_file(
-                //     "hsr_images/du/",
-                //     self.window_size,
-                //     rustautogui::MatchMode::SegmentedOclV2,
-                //     "Lock in",
-                // )?;
+                self.rustautogui.store_template_from_file(
+                    "hsr_images/du/view obtained curios.png",
+                    self.window_size,
+                    rustautogui::MatchMode::SegmentedOcl,
+                    "View Obtained Curios",
+                )?;
             }
         }
 
