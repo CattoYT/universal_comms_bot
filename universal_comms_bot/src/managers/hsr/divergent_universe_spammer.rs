@@ -13,25 +13,31 @@ pub fn spam_divergent_universe(consumer_recv: Receiver<Arc<FrameData>>) {
     std::thread::spawn(move || {
         let mut _du_counter = 0; //left the underscore there as a temporary "compiler stfu please"
         let mut stage = 0;
+        let mut autogui = RustAutoGuiHelper::new();
+        autogui
+            .load_templates(crate::autogui::Game::HSR)
+            .expect("a");
         loop {
             let frame_data = consumer_recv.recv().unwrap();
             println!("starting stage {stage}");
-            match run_divergent_universe(stage, frame_data) {
+            match run_divergent_universe(&mut autogui, stage, frame_data) {
                 Ok(_) => {
                     stage += 1;
                 }
                 Err(e) => println!("{e}"),
             }
             for x in 0..consumer_recv.len() {
-                drop(consumer_recv.recv())
+                drop(consumer_recv.recv()) //TODO: make this much better, cuz theres no point in screenshotting if its being dropped 
             }
         }
     });
 }
 
-fn run_divergent_universe(stage: u8, frame_data: Arc<FrameData>) -> Result<(), AutoGuiError> {
-    let mut autogui = RustAutoGuiHelper::new();
-
+fn run_divergent_universe(
+    autogui: &mut RustAutoGuiHelper,
+    stage: u8,
+    frame_data: Arc<FrameData>,
+) -> Result<(), AutoGuiError> {
     let Ok(mut frame) =
         processor_shared::convert_image_data(frame_data.height, &frame_data.raw_buffer)
     else {
@@ -61,40 +67,95 @@ fn run_divergent_universe(stage: u8, frame_data: Arc<FrameData>) -> Result<(), A
         } //difficulty 5
         2 => {
             let _ = autogui.move_and_click((128, 609));
-            sleep(Duration::from_millis(500));
-        }
+            sleep(Duration::from_millis(800));
+        } //check acheron and start
         3 => {
             if check_pixel_colour(&frame, (1122, 970), (235, 45, 59)).unwrap() {
                 println!("Acheron confirmed, proceeding");
                 // let _ = click_with_pixel_check(&autogui.rustautogui, &frame, (1688, 960), (225,225,225));
                 autogui.move_and_click((1688, 960));
-                let _ = autogui.rustautogui.loop_find_stored_image_on_screen(
-                    0.8,
-                    30,
-                    "View Obtained Curios",
-                ); //wait for load to finish then proceed
+                let _ = autogui
+                    .rustautogui
+                    .loop_find_stored_image_on_screen(1.0, 30, "View Obtained Curios")
+                    .expect("a"); //wait for load to finish then proceed
+                println!("next stage detected");
             } else {
                 todo!("find acheron")
             }
         }
         4 => {
+            // get first curio
             let centre = autogui.rustautogui.get_screen_size();
             let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
             sleep(Duration::from_millis(100));
-            click_with_pixel_check(&autogui.rustautogui, &frame, (1688, 960), (234, 233, 234))
-                .expect("?");
+            let _ = &autogui.move_and_click((1708, 960)).expect("4");
+            sleep(Duration::from_millis(2200));
+            let _ = &autogui.move_and_click((1500, 960)).expect("4");
+            sleep(Duration::from_millis(3000));
         }
         5 => {
+            //boon
             let centre = autogui.rustautogui.get_screen_size();
             let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
             sleep(Duration::from_millis(100));
-            click_with_pixel_check(&autogui.rustautogui, &frame, (1032, 982 ), (234, 233, 234))
-                .expect("?");
+            let _ = autogui.move_and_click((1032, 982));
+            sleep(Duration::from_millis(1500));
         }
+        6 => {
+            // get first curio
+            let centre = autogui.rustautogui.get_screen_size();
+            let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+            sleep(Duration::from_millis(100));
+            let _ = &autogui.move_and_click((1708, 960)).expect("4");
+            sleep(Duration::from_millis(1000));
+        }
+        7 => { //pray
+            loop {
+                match &autogui.rustautogui.loop_find_stored_image_on_screen(
+                    0.9,
+                    5,
+                    "View Blessings And Equations",
+                ) {
+                    Ok(_) => {
+                        println!("VBAE");
+                        let centre = autogui.rustautogui.get_screen_size();
+                        let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+                        sleep(Duration::from_millis(100));
+                        let _ = &autogui.move_and_click((1708, 960)).expect("4");
+                        sleep(Duration::from_millis(1000));
+                        let _ = &autogui.move_and_click((1500, 960)).expect("4");
+                    }
+                    Err(_) => break,
+                }
+            }
+            loop {
+                match &autogui
+                    .rustautogui
+                    .loop_find_stored_image_on_screen(0.9, 5, "Blank area")
+                {
+                    Ok(_) => {
+                        let _ = &autogui.move_and_click((1500, 960)).expect("4");
+                    }
+                    Err(_) => {
+                        break;
+                    }
+                };
+            }
+            //hopefully atp we are in game?
+        }
+        // 7 => {
+        //     let centre = autogui.rustautogui.get_screen_size();
+        //     let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+        //     sleep(Duration::from_millis(100));
+        //     let _ = &autogui.move_and_click((1708, 960)).expect("7");
+        //     sleep(Duration::from_millis(200));
+        //     let _ = autogui.move_and_click((1032, 982));
+        //     sleep(Duration::from_millis(1500));
+        // }
         _ => {
             println!("How did you get here");
             panic!("a"); //temp panic for debug
-            return Err(AutoGuiError::OSFailure("How".to_string()));
+            // return Err(AutoGuiError::OSFailure("How".to_string()));
         }
     }
     Ok(())

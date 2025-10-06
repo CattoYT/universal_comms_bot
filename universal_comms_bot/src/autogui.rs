@@ -49,11 +49,7 @@ impl RustAutoGuiHelper {
         }
         Ok(())
     }
-    pub fn move_and_click(
-        &mut self,
-        coords: (u32, u32)
-        
-    ) -> Result<(), AutoGuiError> {
+    pub fn move_and_click(&mut self, coords: (u32, u32)) -> Result<(), AutoGuiError> {
         self.rustautogui.move_mouse_to_pos(coords.0, coords.1, 0.05);
         self.rustautogui.left_click();
         Ok(())
@@ -65,7 +61,6 @@ impl RustAutoGuiHelper {
         if let Err(_) = self.rustautogui.change_ocl_device(0) {
             println!("Failed to use opencl! I highly recommend using it, but I will proceed.");
             match_mode = rustautogui::MatchMode::Segmented;
-
         } // this might not work, so just like be aware
         if self.templates_loaded {
             return Err(AutoGuiError::ImgError(
@@ -78,31 +73,31 @@ impl RustAutoGuiHelper {
                 self.rustautogui.store_template_from_file(
                     "lock_in_images/Find Match.png",
                     self.window_size,
-                    rustautogui::MatchMode::SegmentedOcl,
+                    match_mode.clone(),
                     "Find match",
                 )?;
                 self.rustautogui.store_template_from_file(
                     "lock_in_images/Accept Match.png",
                     self.window_size,
-                    rustautogui::MatchMode::SegmentedOcl,
+                    match_mode.clone(),
                     "Accept match",
                 )?;
                 self.rustautogui.store_template_from_file(
                     "lock_in_images/Search Bar.png",
                     self.window_size,
-                    rustautogui::MatchMode::SegmentedOcl,
+                    match_mode.clone(),
                     "Search bar",
                 )?;
                 self.rustautogui.store_template_from_file(
                     "lock_in_images/Offset down for champ portrait.png",
                     self.window_size,
-                    rustautogui::MatchMode::SegmentedOcl,
+                    match_mode.clone(),
                     "topjungle offset for portrait",
                 )?;
                 self.rustautogui.store_template_from_file(
                     "lock_in_images/Lock in.png",
                     self.window_size,
-                    rustautogui::MatchMode::SegmentedOcl,
+                    match_mode.clone(),
                     "Lock in",
                 )?;
                 self.templates_loaded = true;
@@ -111,8 +106,20 @@ impl RustAutoGuiHelper {
                 self.rustautogui.store_template_from_file(
                     "hsr_images/du/view obtained curios.png",
                     self.window_size,
-                    rustautogui::MatchMode::SegmentedOcl,
+                    match_mode.clone(),
                     "View Obtained Curios",
+                )?;
+                self.rustautogui.store_template_from_file(
+                    "hsr_images/du/View blessings and equations.png",
+                    self.window_size,
+                    match_mode.clone(),
+                    "View Blessings And Equations",
+                )?;
+                self.rustautogui.store_template_from_file(
+                    "hsr_images/du/Blank area.png",
+                    self.window_size,
+                    match_mode.clone(),
+                    "Blank area",
                 )?;
             }
         }
