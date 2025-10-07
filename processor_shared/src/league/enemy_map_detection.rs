@@ -1,4 +1,5 @@
 use opencv::core::{CV_8UC1, Point3f, Rect};
+use opencv::highgui;
 use opencv::imgproc::rectangle;
 use opencv::{
     core::{Scalar, in_range},
@@ -6,11 +7,9 @@ use opencv::{
     prelude::*,
 };
 
-use crate::opencv_bullshit_colour_from_rgba;
+use crate::{opencv_bullshit_colour_from_rgba, save_as_image};
 
 type Error = opencv::error::Error;
-
-
 
 pub struct Detections {
     pub total: u8,
@@ -34,61 +33,24 @@ pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
         CV_8UC1,
         Scalar::new(0., 0., 0., 255.),
     )?;
+
+    // in_range(
+    //     &image_src,
+    //     &opencv_bullshit_colour_from_rgba(210, 58, 49, 255),
+    //     &opencv_bullshit_colour_from_rgba(236, 84, 69, 255),
+    //     &mut result_image,
+    // )?; //atp masked image will only contain the white pixels of the enemy outlines
+
+    //ignore the turret numbers
+    // top turret
+
     in_range(
         &image_src,
         &opencv_bullshit_colour_from_rgba(210, 58, 49, 255),
         &opencv_bullshit_colour_from_rgba(236, 84, 69, 255),
         &mut result_image,
     )?; //atp masked image will only contain the white pixels of the enemy outlines
-
-    //ignore the turret numbers
-    // top turret
-    let ignore_rect = Rect {
-        x: 117, // top-left x
-        y: 36,  // top-left y
-        width: 8,
-        height: 9,
-    };
-    rectangle(
-        &mut result_image,
-        ignore_rect,
-        Scalar::new(0., 0., 0., 255.), // black out the region
-        -1,                            // fill the rectangle
-        opencv::imgproc::LINE_8,
-        0,
-    )?;
-    // mid turret
-    let ignore_rect = Rect {
-        x: 238, // top-left x
-        y: 173,  // top-left y
-        width: 8,
-        height: 12,
-    };
-    rectangle(
-        &mut result_image,
-        ignore_rect,
-        Scalar::new(0., 0., 0., 255.), // black out the region
-        -1,                            // fill the rectangle
-        opencv::imgproc::LINE_8,
-        0,
-    )?;
-    // bot turret
-    let ignore_rect = Rect {
-        x: 365, // top-left x
-        y: 275,  // top-left y
-        width: 8,
-        height: 15,
-    };
-    rectangle(
-        &mut result_image,
-        ignore_rect,
-        Scalar::new(0., 0., 0., 255.), // black out the region
-        -1,                            // fill the rectangle
-        opencv::imgproc::LINE_8,
-        0,
-    )?;
-    
-    let cropped_image = Mat::roi(
+    let mut cropped_image = Mat::roi(
         &result_image,
         Rect {
             x: 1498,
@@ -96,9 +58,54 @@ pub fn create_enemy_red_map(image: &Mat) -> Result<Mat, Error> {
             width: 422,
             height: 422,
         },
-    )
-    .unwrap();
-    Ok(cropped_image.clone_pointee())
+    ).unwrap().clone_pointee();
+    
+    let ignore_rect = Rect {
+        x: 130, // top-left x
+        y: 41,  // top-left y
+        width: 8,
+        height: 9,
+    };
+    rectangle(
+        &mut cropped_image,
+        ignore_rect,
+        Scalar::new(0., 0., 0., 255.), // black out the region
+        -1,                            // fill the rectangle
+        opencv::imgproc::LINE_AA,
+        0,
+    )?;
+    // mid turret
+    let ignore_rect = Rect {
+        x: 249, // top-left x
+        y: 179, // top-left y
+        width: 10,
+        height: 12,
+    };
+    rectangle( //and it also tracks whether the enmy is in topside or botside jungle
+        &mut cropped_image,
+        ignore_rect,
+        Scalar::new(0., 0., 0., 255.), // black out the region
+        -1,                            // fill the rectangle
+        opencv::imgproc::LINE_AA,
+        0,
+    )?;
+    // bot turret
+    let ignore_rect = Rect {
+        x: 377, // top-left x
+        y: 283, // top-left y
+        width: 9,
+        height: 11,
+    };
+    rectangle(
+        &mut cropped_image,
+        ignore_rect,
+        Scalar::new(0., 0., 0., 255.), // black out the region
+        -1,                            // fill the rectangle
+        opencv::imgproc::LINE_AA,
+        0,
+    )?;
+    // highgui::imshow("Map Visualiser 2", &image_src).unwrap();
+    Ok(cropped_image)
 }
 
 pub fn detect_enemies_on_redmap(image: &Mat) -> Option<Detections> {

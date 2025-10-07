@@ -68,7 +68,7 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
                     println!("Current enemies in vision: {}", minimap_enemies.total);
                     let mut enemies_vec = Vec::new();
                     for enemy in minimap_enemies.enemies {
-                        println!("Enemy at {}, {}", enemy[0], enemy[1]);
+                        // println!("Enemy at {}, {}", enemy[0], enemy[1]);
                         println!("Enemy is in {:?}", check_river(vec![enemy[0], enemy[1]]));
                         enemies_vec.push(Enemy {
                             x: enemy[0],
@@ -154,20 +154,20 @@ fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
     let y = coord[1];
 
     //ignore my shitcode, its a lazy workaround for finding the river while making use of whatever y=mx+c bullshit i remembered from gcses
-    if (y < (x * -1.) + 400.) //midlane bound
-    && (y < 57.) // blueside left bound
-    && (x > 199.) // redsude top bound
+    if (x < (y * -1.) + 400.) //midlane bound
+    && (x > 66.) // blueside left bound
+    && (y > 63.) // redsode top bound
     && (x < 265.) //redside right bound
-    && (y > 265.) //blueside bottom bound
-    && (y > (x * -1.) + 155.)
+    && (y < 265.) //blueside bottom bound
+    && (x > (y * -1.) + 155.)
     {
         //toplane (lazily done)
         return Some(JungleStatus::Topside);
-    } else if (y > (x * -1.) + 440.) //midlane bound
+    } else if (x > (y * -1.) + 440.) //midlane bound
     && (x < 348.) //redside right bound
-    && (y > 355.) //blueside bottom bound
-    && (x > 140.) //blueside left bound
-    && (y > 142.) //redside top bound
+    && (y < 355.) //blueside bottom bound
+    && (x > 158.) //blueside left bound
+    && (y > 150.) //redside top bound
     && (y < (x * -1.) + 645.)
     //botlane (again, lazily done cuz idk how a half horizontal quadratic would work (i do but im lazy thanks further maths :<))
     {
@@ -177,7 +177,7 @@ fn check_river(coord: Vec<f32>) -> Option<JungleStatus> {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests { 
 
     use super::*;
     use opencv::imgcodecs::IMREAD_COLOR;

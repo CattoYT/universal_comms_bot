@@ -109,49 +109,84 @@ fn run_divergent_universe(
             let _ = &autogui.move_and_click((1708, 960)).expect("4");
             sleep(Duration::from_millis(1000));
         }
-        7 => { //pray
+        7 => {
+            //TODO: OPTIMIZE
             loop {
-                match &autogui.rustautogui.loop_find_stored_image_on_screen(
-                    0.9,
-                    5,
-                    "View Blessings And Equations",
-                ) {
-                    Ok(_) => {
-                        println!("VBAE");
-                        let centre = autogui.rustautogui.get_screen_size();
-                        let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
-                        sleep(Duration::from_millis(100));
-                        let _ = &autogui.move_and_click((1708, 960)).expect("4");
-                        sleep(Duration::from_millis(1000));
-                        let _ = &autogui.move_and_click((1500, 960)).expect("4");
-                    }
-                    Err(_) => break,
-                }
-            }
-            loop {
-                match &autogui
-                    .rustautogui
-                    .loop_find_stored_image_on_screen(0.9, 5, "Blank area")
-                {
-                    Ok(_) => {
-                        let _ = &autogui.move_and_click((1500, 960)).expect("4");
-                    }
-                    Err(_) => {
-                        break;
+                let r1: bool = loop {
+                    match &autogui.rustautogui.find_stored_image_on_screen(
+                        0.9,
+                        "View Blessings And Equations",
+                    ) {
+                        Ok(_) => {
+                            println!("VBAE");
+                            let centre = autogui.rustautogui.get_screen_size();
+                            let _ =
+                                autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+                            sleep(Duration::from_millis(100));
+                            let _ = &autogui.move_and_click((1708, 960)).expect("4");
+                            sleep(Duration::from_millis(1000));
+                            let _ = &autogui.move_and_click((1500, 960)).expect("4");
+                            break false
+                        }
+                        Err(_) => break true,
                     }
                 };
+                let r2: bool = loop {
+                    println!("searching for ba");
+                    match &autogui.rustautogui.loop_find_stored_image_on_screen(
+                        0.7,
+                        2,
+                        "Blank area",
+                    ) {
+                        Ok(_) => {
+                            println!("Blank area");
+                            let _ = &autogui.move_and_click((1500, 960)).expect("4");
+                            break false;
+                        }
+                        Err(_) => {
+                            break true;
+                        }
+                    };
+                };
+                if r1 && r2 {
+                    return Ok(())
+                } else{
+                    sleep(Duration::from_secs(1));
+                }
             }
             //hopefully atp we are in game?
         }
-        // 7 => {
-        //     let centre = autogui.rustautogui.get_screen_size();
-        //     let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
-        //     sleep(Duration::from_millis(100));
-        //     let _ = &autogui.move_and_click((1708, 960)).expect("7");
-        //     sleep(Duration::from_millis(200));
-        //     let _ = autogui.move_and_click((1032, 982));
-        //     sleep(Duration::from_millis(1500));
-        // }
+        8 => { //kill the 3 starting enemies
+            for _ in 0..8 {
+                let _ = &autogui.rustautogui.keyboard_input("e");
+                sleep(Duration::from_millis(500));
+            }
+        }
+        9 => { //receive blessings
+            loop {
+                    match &autogui.rustautogui.loop_find_stored_image_on_screen(
+                        0.9,
+                        3,
+                        "View Blessings And Equations",
+                    ) {
+                        Ok(_) => {
+                            println!("VBAE");
+                            let centre = autogui.rustautogui.get_screen_size();
+                            let _ =
+                                autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+                            sleep(Duration::from_millis(100));
+                            let _ = &autogui.move_and_click((1708, 960)).expect("4");
+                            
+                        }
+                        Err(_) => break,
+                    }
+                    sleep(Duration::from_millis(1000));
+                };
+        }
+        10 => { //back out
+            autogui.rustautogui.keyboard_command("escape").expect("10");
+
+        }
         _ => {
             println!("How did you get here");
             panic!("a"); //temp panic for debug
