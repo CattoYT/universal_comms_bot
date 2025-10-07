@@ -1,6 +1,7 @@
 // this is essentially starting a divergent universe run with acheron, killing the first 3 enemies, then backing out for the 50 sync points
 // tested this a while back and its the fastest way to afk the point gathering
 
+use core::panic;
 use std::{any::Any, sync::Arc, thread::sleep, time::Duration};
 
 use crossbeam::channel::Receiver;
@@ -29,6 +30,9 @@ pub fn spam_divergent_universe(consumer_recv: Receiver<Arc<FrameData>>) {
             for x in 0..consumer_recv.len() {
                 drop(consumer_recv.recv()) //TODO: make this much better, cuz theres no point in screenshotting if its being dropped 
             }
+            if stage > 11 {
+                stage = 0
+            }
         }
     });
 }
@@ -51,9 +55,19 @@ fn run_divergent_universe(
     match stage {
         0 => {
             //start divergent run
-            let _ =
-                click_with_pixel_check(&autogui.rustautogui, &frame, (1400, 950), (221, 192, 140));
-            sleep(Duration::from_millis(1000));
+            match click_with_pixel_check(&autogui.rustautogui, &frame, (1400, 950), (221, 192, 140))
+            {
+                Ok(_) => {
+                    sleep(Duration::from_millis(1000));
+                    return Ok(());
+                }
+                Err(_) => {
+                    sleep(Duration::from_secs(1));
+                    return Err(AutoGuiError::OSFailure(
+                        "Waiting for you to enter the Divergent Universe home screen".to_string(),
+                    ));
+                }
+            }
         } // cyclical extrapolation
         1 => {
             //check if previous was actually successful
@@ -113,12 +127,13 @@ fn run_divergent_universe(
             //TODO: OPTIMIZE
             loop {
                 let r1: bool = loop {
-                    match &autogui.rustautogui.find_stored_image_on_screen(
-                        0.9,
-                        "View Blessings And Equations",
-                    ) {
-                        Ok(_) => {
-                            println!("VBAE");
+                    match &autogui
+                        .rustautogui
+                        .find_stored_image_on_screen(0.9, "View Blessings And Equations")
+                        .unwrap()
+                    {
+                        Some(_) => {
+                            // println!("VBAE");
                             let centre = autogui.rustautogui.get_screen_size();
                             let _ =
                                 autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
@@ -126,22 +141,20 @@ fn run_divergent_universe(
                             let _ = &autogui.move_and_click((1708, 960)).expect("4");
                             sleep(Duration::from_millis(1000));
                             let _ = &autogui.move_and_click((1500, 960)).expect("4");
-                            break false
                         }
-                        Err(_) => break true,
+                        None => break true,
                     }
                 };
                 let r2: bool = loop {
                     println!("searching for ba");
-                    match &autogui.rustautogui.loop_find_stored_image_on_screen(
+                    match &autogui.rustautogui.find_stored_image_on_screen(
                         0.7,
-                        2,
                         "Blank area",
                     ) {
                         Ok(_) => {
-                            println!("Blank area");
+                            // println!("Blank area");
                             let _ = &autogui.move_and_click((1500, 960)).expect("4");
-                            break false;
+                            
                         }
                         Err(_) => {
                             break true;
@@ -149,48 +162,67 @@ fn run_divergent_universe(
                     };
                 };
                 if r1 && r2 {
-                    return Ok(())
-                } else{
+                    return Ok(());
+                } else {
                     sleep(Duration::from_secs(1));
                 }
             }
             //hopefully atp we are in game?
         }
-        8 => { //kill the 3 starting enemies
+        8 => {
+            //kill the 3 starting enemies
+            let _ = &autogui.rustautogui.key_down("w");
             for _ in 0..8 {
                 let _ = &autogui.rustautogui.keyboard_input("e");
                 sleep(Duration::from_millis(500));
             }
+            let _ = &autogui.rustautogui.key_up("w");
         }
-        9 => { //receive blessings
+        9 => {
+            //receive blessings
             loop {
-                    match &autogui.rustautogui.loop_find_stored_image_on_screen(
-                        0.9,
-                        3,
-                        "View Blessings And Equations",
-                    ) {
-                        Ok(_) => {
-                            println!("VBAE");
-                            let centre = autogui.rustautogui.get_screen_size();
-                            let _ =
-                                autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
-                            sleep(Duration::from_millis(100));
-                            let _ = &autogui.move_and_click((1708, 960)).expect("4");
-                            
-                        }
-                        Err(_) => break,
+                match &autogui.rustautogui.loop_find_stored_image_on_screen(
+                    0.9,
+                    3,
+                    "View Blessings And Equations",
+                ) {
+                    Ok(_) => {
+                        println!("VBAE");
+                        let centre = autogui.rustautogui.get_screen_size();
+                        let _ = autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
+                        sleep(Duration::from_millis(100));
+                        let _ = &autogui.move_and_click((1708, 960)).expect("4");
                     }
-                    sleep(Duration::from_millis(1000));
-                };
+                    Err(_) => break,
+                }
+                sleep(Duration::from_millis(1500));
+            }
         }
-        10 => { //back out
+        10 => {
+            //back out
             autogui.rustautogui.keyboard_command("escape").expect("10");
 
+            sleep(Duration::from_millis(1000));
+            let _ = autogui.move_and_click((1576, 980));
+            sleep(Duration::from_millis(1500));
+            let _ = autogui.move_and_click((1178, 775));
+        }
+        11 => {
+            let coords = autogui
+                .rustautogui
+                .loop_find_stored_image_on_screen(1.0, 30, "R2Main Menu")
+                .unwrap();
+            match coords {
+                Some(_) => {
+                    autogui
+                        .move_and_click((960, 960))
+                        .expect("hope this works lol");
+                }
+                None => return Err(AutoGuiError::OSFailure("Couldn't exit?".to_string())),
+            }
         }
         _ => {
-            println!("How did you get here");
-            panic!("a"); //temp panic for debug
-            // return Err(AutoGuiError::OSFailure("How".to_string()));
+            println!("Restarting!");
         }
     }
     Ok(())
@@ -210,6 +242,7 @@ fn click_with_pixel_check(
             .expect("failed to move???");
         sleep(Duration::from_millis(60));
         gui.left_click().expect("failed to click");
+        return Ok(())
     }
     Err(DivergentUniverseError("Couldn't locate pixel".to_string()))
 }
