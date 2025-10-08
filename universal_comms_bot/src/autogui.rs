@@ -124,6 +124,12 @@ impl RustAutoGuiHelper {
                 self.rustautogui.store_template_from_file(
                     "hsr_images/du/return to main menu.png",
                     self.window_size,
+                    match_mode.clone(),
+                    "R2Main Menu",
+                )?;
+                self.rustautogui.store_template_from_file(
+                    "hsr_images/du/return to main menu.png",
+                    self.window_size,
                     match_mode,
                     "R2Main Menu",
                 )?;

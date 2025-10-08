@@ -45,7 +45,7 @@ pub fn process_map_data(consumer_recv: Receiver<Arc<FrameData>>) {
         };
 
         loop {
-            // print!("{}[2J", 27 as char);
+            print!("{}[2J", 27 as char);
             println!("-------------------------");
             let frame_data = consumer_recv.recv().unwrap();
 
