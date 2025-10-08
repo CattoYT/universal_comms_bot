@@ -60,7 +60,7 @@ fn check_for_star_rail_and_return_managers(
     match x.peek() {
         Some(_) => {
             println!("Star Rail found!");
-            managers.push(managers::hsr::divergent_universe_spammer::spam_divergent_universe);
+            managers.push(managers::hsr::hsr::switcher_manual);
             return Some(());
         }
         None => {
