@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use rustautogui;
 
-use crate::autogui::RustAutoGuiHelper; //todo make this macos compatible
+use crate::autogui::RustAutoGuiHelper;
 
 #[derive(Debug, Clone, Copy)]
 pub struct LockInError;

@@ -1,7 +1,7 @@
 use opencv::core::{CV_8UC1, KeyPoint, Point, Point2f, Point3f, Rect, Size, Vector};
 use opencv::core::{Scalar, in_range};
 use opencv::features2d::{SimpleBlobDetector, SimpleBlobDetector_Params};
-use opencv::{imgproc, prelude::*};
+use opencv::{highgui, imgproc, prelude::*};
 
 type Error = opencv::error::Error;
 
@@ -40,10 +40,10 @@ pub fn find_yellow_enemies(img: &Mat) -> Result<Option<()>, Error> {
     let centers: Vec<Point2f> = keypoints.iter().map(|k| k.pt()).collect();
     if centers.len() > 0 {
         println!("There is most definitely an enemy here"); // I am really bad at opencv, so without machine learning, this is the best, reliable output i can reasonably give
-        return Ok(Some(()))
+        return Ok(Some(()));
     }
 
-    return Ok(None)
+    return Ok(None);
 }
 
 pub fn mask_image_for_enemies(img: &Mat) -> Result<Mat, Error> {
@@ -53,12 +53,23 @@ pub fn mask_image_for_enemies(img: &Mat) -> Result<Mat, Error> {
         CV_8UC1,
         Scalar::new(0., 0., 0., 255.),
     )?;
+    //todo: config file?
+    //yellow
+    // in_range(
+    //     img,
+    //     &opencv_bullshit_colour_from_rgba(240, 240, 40, 255), //todo: fix the colour values and make em a little more accurate
+    //     &opencv_bullshit_colour_from_rgba(252, 252, 80, 255), //cba now its probably fine
+    //     &mut result_image,
+    // )?;
+    //purple
     in_range(
         img,
-        &opencv_bullshit_colour_from_rgba(240, 240, 40, 255), //todo: fix the colour values and make em a little more accurate
-        &opencv_bullshit_colour_from_rgba(252, 252, 80, 255), //cba now its probably fine
+        &opencv_bullshit_colour_from_rgba(245, 80, 240, 255), //todo: fix the colour values and make em a little more accurate
+        &opencv_bullshit_colour_from_rgba(255, 150, 255, 255), //cba now its probably fine
         &mut result_image,
     )?;
+    let _ = highgui::imshow("yoo", &result_image);
+
     Ok(result_image)
     // Err(Error::new(0, "Failed to mask image"))
 }

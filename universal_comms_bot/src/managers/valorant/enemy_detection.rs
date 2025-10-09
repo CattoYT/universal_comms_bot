@@ -67,19 +67,19 @@ pub fn process_valorant(consumer_recv: Receiver<Arc<FrameData>>) {
 }
 
 fn type_warning(autogui: &mut RustAutoGuiHelper) -> Result<Instant, AutoGuiError> {
-    let message = "one guy here";
+    // let message = "one guy here";
 
-    autogui.rustautogui.keyboard_command("return")?;
-    sleep(Duration::from_millis(50));
+    // autogui.rustautogui.keyboard_command("return")?;
+    // sleep(Duration::from_millis(50));
 
-    for char in message.chars() {
-        autogui.rustautogui.key_down(&char.to_string())?;
-        autogui.rustautogui.key_up(&char.to_string())?;
-            sleep(Duration::from_millis(1));
+    // for char in message.chars() {
+    //     autogui.rustautogui.key_down(&char.to_string())?;
+    //     autogui.rustautogui.key_up(&char.to_string())?;
+    //         sleep(Duration::from_millis(1));
 
-    }
+    // }
 
-    autogui.rustautogui.keyboard_command("return")?;
+    // autogui.rustautogui.keyboard_command("return")?;
 
     Ok(Instant::now())
 }
