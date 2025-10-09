@@ -1,6 +1,5 @@
 use std::{sync::Arc, thread::sleep, time::Duration};
 
-use xcap::image::Frame;
 
 use crate::{managers::hsr::{divergent_universe_spammer, relic_farm}, screenshots::frame::FrameData};
 
@@ -25,7 +24,7 @@ pub fn switcher_manual(recv: crossbeam::channel::Receiver<Arc<FrameData>>) {
                     print!("{}[2J", 27 as char);
                 }
             }
-            Err(e) => {
+            Err(_) => {
                 println!("")
             }
         }
