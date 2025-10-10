@@ -43,7 +43,7 @@ pub fn switcher_manual(recv: crossbeam::channel::Receiver<Arc<FrameData>>) {
     }
 }
 
-pub fn switcher_auto(recv: crossbeam::channel::Receiver<Arc<FrameData>>) {
-    //TODO: take an ss then just compare whether its divergent universe or a calyx
+// pub fn switcher_auto(recv: crossbeam::channel::Receiver<Arc<FrameData>>) {
+//     //TODO: take an ss then just compare whether its divergent universe or a calyx
     
-}
+// }

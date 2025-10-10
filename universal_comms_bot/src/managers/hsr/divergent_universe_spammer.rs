@@ -1,5 +1,7 @@
 // this is essentially starting a divergent universe run with acheron, killing the first 3 enemies, then backing out for the 50 sync points
 // tested this a while back and its the fastest way to afk the point gathering
+// TODO: Refactor this entire file to use my shitty tolerance
+// TODO: Refactor a ton of the stages to remove loops and actually use the fucking stage system i made
 
 use core::panic;
 use std::{any::Any, sync::Arc, thread::sleep, time::Duration};
@@ -16,7 +18,7 @@ pub fn spam_divergent_universe(consumer_recv: Receiver<Arc<FrameData>>) {
         let mut stage = 0;
         let mut autogui = RustAutoGuiHelper::new();
         autogui
-            .load_templates(crate::autogui::Game::HSR)
+            .load_templates(crate::autogui::Game::HSR(crate::autogui::HSRMode::DivergentUniverse))
             .expect("a");
         loop {
             let frame_data = consumer_recv.recv().unwrap();
@@ -55,7 +57,7 @@ fn run_divergent_universe(
     match stage {
         0 => {
             //start divergent run
-            match click_with_pixel_check(&autogui.rustautogui, &frame, (1400, 950), (221, 192, 140))
+            match autogui.click_with_pixel_check(&frame, (1400, 950), (221, 192, 140), None)
             {
                 Ok(_) => {
                     sleep(Duration::from_millis(1000));
@@ -71,7 +73,7 @@ fn run_divergent_universe(
         } // cyclical extrapolation
         1 => {
             //check if previous was actually successful
-            if check_pixel_colour(&frame, (1400, 950), (221, 192, 140)).unwrap() == true {
+            if RustAutoGuiHelper::check_pixel_colour(&frame, (1400, 950), (221, 192, 140), None).unwrap() == true {
                 panic!(
                     "It's likely Star Rail blocked clicks. \nPlease rerun this application with admin perms to use the Divergent Universe bot :/"
                 );
@@ -84,7 +86,7 @@ fn run_divergent_universe(
             sleep(Duration::from_millis(800));
         } //check acheron and start
         3 => {
-            if check_pixel_colour(&frame, (1122, 970), (235, 45, 59)).unwrap() {
+            if RustAutoGuiHelper::check_pixel_colour(&frame, (1122, 970), (235, 45, 59), None).unwrap() {
                 println!("Acheron confirmed, proceeding");
                 // let _ = click_with_pixel_check(&autogui.rustautogui, &frame, (1688, 960), (225,225,225));
                 autogui.move_and_click((1688, 960));
@@ -231,37 +233,7 @@ fn run_divergent_universe(
 #[derive(Debug)]
 struct DivergentUniverseError(String);
 
-fn click_with_pixel_check(
-    gui: &rustautogui::RustAutoGui,
-    image: &Mat,
-    coords: (i32, i32),
-    colour_rgb: (u8, u8, u8),
-) -> Result<(), DivergentUniverseError> {
-    if check_pixel_colour(image, coords, colour_rgb).unwrap_or(false) {
-        gui.move_mouse_to_pos(coords.0 as u32, coords.1 as u32, 0.05)
-            .expect("failed to move???");
-        sleep(Duration::from_millis(60));
-        gui.left_click().expect("failed to click");
-        return Ok(())
-    }
-    Err(DivergentUniverseError("Couldn't locate pixel".to_string()))
-}
 
-fn check_pixel_colour(
-    image: &Mat,
-    coords: (i32, i32),
-    colour_rgb: (u8, u8, u8),
-) -> Result<bool, opencv::Error> {
-    let pixel: &Vec4b = image.at_2d(coords.1, coords.0)?;
-    let colour_bgr: [u8; 4] = [colour_rgb.2, colour_rgb.1, colour_rgb.0, 255];
-    println!("{:?}", pixel.0);
-
-    if pixel.0 == colour_bgr {
-        return Ok(true);
-    }
-
-    Ok(false)
-}
 
 // notes
 // ok so a du run starts mostly the same as it did before so

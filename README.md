@@ -25,3 +25,4 @@ This was added cuz I genuinely dont like valorant as much as I did when i wrote 
 I needed to reach the hours lmao
 
 - [x] Divergent universe
+- [ ] Relic farming
