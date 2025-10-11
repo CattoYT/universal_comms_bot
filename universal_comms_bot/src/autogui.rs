@@ -1,4 +1,4 @@
-use std::{fmt::format, thread::sleep, time::Duration};
+use std::{fmt::{format, Display}, thread::sleep, time::Duration};
 
 use opencv::core::{Mat, MatTraitConst, Vec4b};
 use rustautogui::{RustAutoGui, errors::AutoGuiError};
@@ -21,6 +21,37 @@ fn get_monitor_size() -> Option<(u32, u32, u32, u32)> {
     let (x, y) = temp_gui.get_screen_size();
 
     Some((0, 0, x as u32, y as u32))
+}
+
+#[derive(Debug)]
+pub enum RAutoGuiError {
+    WrongColour,
+    AutoGuiError(AutoGuiError),
+    OpenCVError(opencv::Error),
+    WaitPls, //todo: hold a duration probalby
+}
+
+impl From<AutoGuiError> for RAutoGuiError {
+    fn from(value: AutoGuiError) -> Self {
+        Self::AutoGuiError(value)
+    }
+}
+impl From<opencv::Error> for RAutoGuiError {
+    fn from(value: opencv::Error) -> Self {
+        Self::OpenCVError(value)
+    }
+}
+
+impl Display for RAutoGuiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RAutoGuiError::WrongColour => write!(f, "The pixel was not the expected colour"),
+            RAutoGuiError::AutoGuiError(e) => write!(f, "An AutoGui error occurred: {e}"),
+            RAutoGuiError::OpenCVError(e) => write!(f, "An OpenCV error occurred: {e}"),
+            RAutoGuiError::WaitPls => write!(f, "Possibly fixable by sleep()")
+        }
+        
+    }
 }
 
 pub struct RustAutoGuiHelper {
@@ -51,15 +82,17 @@ impl RustAutoGuiHelper {
         if do_loop {
             self.rustautogui
                 .loop_find_stored_image_on_screen_and_move_mouse(0.6, 0.05, 180, template)?;
+            self.rustautogui.left_click().expect("an");
         } else {
             self.rustautogui
                 .find_stored_image_on_screen_and_move_mouse(0.6, 0.05, template)?;
+            self.rustautogui.left_click().expect("an");
         }
         Ok(())
     }
     pub fn move_and_click(&mut self, coords: (u32, u32)) -> Result<(), AutoGuiError> {
         self.rustautogui.move_mouse_to_pos(coords.0, coords.1, 0.05);
-        self.rustautogui.left_click();
+        self.rustautogui.left_click().expect("an");
         Ok(())
     }
     pub fn load_templates(&mut self, game: Game) -> Result<(), AutoGuiError> {
@@ -162,11 +195,11 @@ impl RustAutoGuiHelper {
         coords: (i32, i32),
         colour_rgb: (u8, u8, u8),
         tolerance: Option<u8>,
-    ) -> Result<(), AutoGuiError> {
+    ) -> Result<(), RAutoGuiError> {
         match Self::check_pixel_colour(image, coords, colour_rgb, tolerance) {
             Ok(pixel_status) => {
                 if !pixel_status {
-                    return Err(AutoGuiError::OSFailure("Wrong colour".to_string()));
+                    return Err(RAutoGuiError::WrongColour);
                 }
                 self.rustautogui
                     .move_mouse_to_pos(coords.0 as u32, coords.1 as u32, 0.05)
@@ -175,7 +208,11 @@ impl RustAutoGuiHelper {
                 self.rustautogui.left_click().expect("failed to click");
                 return Ok(());
             }
-            Err(e) => return Err(AutoGuiError::OSFailure(format!("?? {e}").to_string())),
+            Err(e) => {
+                return Err(RAutoGuiError::AutoGuiError(AutoGuiError::OSFailure(
+                    format!("?? {e}").to_string(),
+                )));
+            }
         };
     }
 
@@ -204,9 +241,9 @@ impl RustAutoGuiHelper {
                 .unwrap();
             // who the fuck cares about the alpha lmao
 
-
             //ty copilot
-            let within = (0..3).all(|i| pixel.0[i] >= lower_bounds[i] && pixel.0[i] <= upper_bounds[i]);
+            let within =
+                (0..3).all(|i| pixel.0[i] >= lower_bounds[i] && pixel.0[i] <= upper_bounds[i]);
             return Ok(within);
         }
 

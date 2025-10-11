@@ -35,7 +35,6 @@ impl GraphicsCaptureApiHandler for Capture {
     // Function that will be called to create a new instance. The flags can be
     // passed from settings.
     fn new(ctx: Context<Self::Flags>) -> Result<Self, Self::Error> {
-        println!("Created with Flags: {:?}", ctx.flags);
 
         Ok(Self {
             start: Instant::now(),

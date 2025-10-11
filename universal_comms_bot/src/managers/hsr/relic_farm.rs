@@ -26,7 +26,15 @@ pub fn spam_relics(consumer_recv: Receiver<Arc<FrameData>>) {
                     Ok(_) => {
                         stage += 1;
                     }
-                    Err(e) => println!("{e}"),
+                    Err(e) => {
+                        
+                        if let autogui::RAutoGuiError::WaitPls = e {
+                            println!("Waiting 1 second...");
+                            sleep(Duration::from_secs(1));
+                        }else {
+                            println!("{e}");
+                        }
+                    }
                 }
             } else {
                 continue;
@@ -43,21 +51,75 @@ fn run_relics(
     autogui: &mut RustAutoGuiHelper,
     stage: i32,
     image: Mat,
-) -> Result<(), rustautogui::errors::AutoGuiError> {
-
+) -> Result<(), autogui::RAutoGuiError> {
     match stage {
-         0 => {
-            autogui.move_and_click_on_template("Challenge", true).unwrap(); //todo: see why this isnt clicking
+        0 => {
+            //start challenge and enter team select
+            autogui
+                .move_and_click_on_template("Challenge", true)
+                .unwrap(); //todo: see why this isnt clicking
             sleep(Duration::from_millis(800));
-         }
-         1 => {
-            // autogui.click_with_pixel_check(&image, (1675, 969), (242, 243, 244), Some(5)).expect("no");
-         }
+        }
+        1 => {
+            //enter battle
+
+            autogui
+                .click_with_pixel_check(&image, (1675, 969), (255, 255, 255), Some(5))
+                .expect("no");
+            sleep(Duration::from_secs(3)); //load speed dependent
+        }
+        2 => {
+            // wait for entering battle and enable autoplay
+            match RustAutoGuiHelper::check_pixel_colour(&image, (72, 21), (255, 255, 255), Some(3))
+            {
+                Ok(result) => {
+                    if !result {
+                        return Err(rustautogui::errors::AutoGuiError::OSFailure(
+                            "Wrong colour found wave counter, continuing to next frame".to_string(),
+                        )
+                        .into());
+                    }
+                }
+                Err(_) => {
+                    return Err(rustautogui::errors::AutoGuiError::OSFailure(
+                        "colour check failed, continuing to next frame".to_string(),
+                    )
+                    .into());
+                }
+            };
+            if let Ok(result) =
+                RustAutoGuiHelper::check_pixel_colour(&image, (1762, 64), (239, 214, 155), Some(5))
+            {
+                if !result {
+                    autogui.move_and_click((1762, 64)).expect("fucking hell");
+                }
+            }
+            // match autogui.click_with_pixel_check(&image, (1762, 64), (239, 214, 155), Some(5)) {
+            //     Ok(_) => {}
+            //     Err(e) => {
+            //         println!("{e}")
+            //     }
+            // }
+        }
+        3 => {
+            //wait til finish lol
+            if let Ok(result) =
+                RustAutoGuiHelper::check_pixel_colour(&image, (1250, 965), (227, 228, 229), Some(5))
+            {
+                if result {
+                    autogui.move_and_click((1250, 965));
+                } else {
+                    return Err(autogui::RAutoGuiError::WaitPls);
+                }
+            }
+        }
+        4 => { //TODO: check the trailblaze power and then be able to select more hopefully
+
+        }
         _ => {
             panic!("debug panic so stfu")
         }
     }
 
     Ok(())
-
 }

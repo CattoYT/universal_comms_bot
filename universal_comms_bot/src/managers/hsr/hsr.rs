@@ -15,7 +15,7 @@ pub fn switcher_manual(recv: crossbeam::channel::Receiver<Arc<FrameData>>) {
         );
         match std::io::stdin().read_line(&mut user_buffer) {
             Ok(_) => {
-                println!("{user_buffer}");
+                // println!("{user_buffer}");
                 if user_buffer.trim() == "1".to_string() || user_buffer.trim() == "2".to_string() {
                     break;
                 } else {
@@ -36,6 +36,7 @@ pub fn switcher_manual(recv: crossbeam::channel::Receiver<Arc<FrameData>>) {
             divergent_universe_spammer::spam_divergent_universe(recv);
         }
         "2" => {
+            println!("Starting relics farmer!");
             relic_farm::spam_relics(recv);
         }
 
