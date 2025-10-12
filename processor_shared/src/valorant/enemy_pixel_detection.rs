@@ -69,6 +69,7 @@ pub fn mask_image_for_enemies(img: &Mat) -> Result<Mat, Error> {
         &mut result_image,
     )?;
     let _ = highgui::imshow("yoo", &result_image);
+    let _ = highgui::wait_key(1);
 
     Ok(result_image)
     // Err(Error::new(0, "Failed to mask image"))

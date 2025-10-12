@@ -128,7 +128,7 @@ fn run_divergent_universe(
         7 => {
             //TODO: OPTIMIZE
             loop {
-                let r1: bool = loop {
+                
                     match &autogui
                         .rustautogui
                         .find_stored_image_on_screen(0.9, "View Blessings And Equations")
@@ -141,13 +141,13 @@ fn run_divergent_universe(
                                 autogui.move_and_click((centre.0 as u32 / 2, centre.1 as u32 / 2));
                             sleep(Duration::from_millis(100));
                             let _ = &autogui.move_and_click((1708, 960)).expect("4");
-                            sleep(Duration::from_millis(1000));
-                            let _ = &autogui.move_and_click((1500, 960)).expect("4");
+                            // sleep(Duration::from_millis(1000));
+                            // let _ = &autogui.move_and_click((1500, 960)).expect("4");
                         }
-                        None => break true,
+                        None => {},
                     }
-                };
-                let r2: bool = loop {
+                
+                
                     println!("searching for ba");
                     match &autogui.rustautogui.find_stored_image_on_screen(
                         0.7,
@@ -156,14 +156,13 @@ fn run_divergent_universe(
                         Ok(_) => {
                             // println!("Blank area");
                             let _ = &autogui.move_and_click((1500, 960)).expect("4");
-                            
                         }
                         Err(_) => {
-                            break true;
+                            
                         }
                     };
-                };
-                if r1 && r2 {
+                let ingame_check = &autogui.rustautogui.find_stored_image_on_screen(0.9, "Check ingame").unwrap();
+                if ingame_check.is_some() {
                     return Ok(());
                 } else {
                     sleep(Duration::from_secs(1));
@@ -198,18 +197,22 @@ fn run_divergent_universe(
                     Err(_) => break,
                 }
                 sleep(Duration::from_millis(1500));
-            }
+            };
+            // sleep(Duration::from_secs(1)); 
+            autogui.rustautogui.left_click();//edge case, this will deal with it hopefully
+            sleep(Duration::from_millis(1500));
         }
-        10 => {
+        10 => { 
             //back out
             autogui.rustautogui.keyboard_command("escape").expect("10");
 
             sleep(Duration::from_millis(1000));
+            
             let _ = autogui.move_and_click((1576, 980));
-            sleep(Duration::from_millis(1500));
+            sleep(Duration::from_millis(700));
             let _ = autogui.move_and_click((1178, 775));
         }
-        11 => {
+        11 => { 
             let coords = autogui
                 .rustautogui
                 .loop_find_stored_image_on_screen(1.0, 30, "R2Main Menu")
@@ -230,47 +233,7 @@ fn run_divergent_universe(
     Ok(())
 }
 
-#[derive(Debug)]
-struct DivergentUniverseError(String);
 
 
 
-// notes
-// ok so a du run starts mostly the same as it did before so
-// start with click on start in the DU menu
-// check with opencv -> (1400, 950) rgb 221,192,140 x
-// (178, 570) click x
-// (128, 609) click x
-// (1150, 969) check if its a pixel on acheron if not then probably can do template matching for acheron
-//      rgb 139,76,108 at (1150, 969) if acheron is first slot x
 
-// (1688, 960) rgb 225,225,225 x
-// click centre of screen when view obtained curios is available x
-// (1688, 960) click x
-// click centre x
-// (1032, 982 ) rgb 234, 233, 234
-
-//tb blessing
-// click centre
-// (1032, 982 ) rgb 234, 233, 234
-
-//blessings obtained
-// (1032, 982 ) click
-
-// after loading press e 8 times
-
-//clear first 3/4 blessings
-// click centre of screen
-// (1688, 960) click
-// click centre of screen
-// (1688, 960) click
-// click centre of screen
-// (1688, 960) click
-
-// hold alt
-// (65,83) click
-
-//(1576,980) click
-//(1178,775) click
-
-// (960, 980) click

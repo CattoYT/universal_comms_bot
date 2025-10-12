@@ -125,7 +125,7 @@ fn run_relics(
                 &image,
                 (1028, 730),
                 (226, 226, 226),
-                Some(5),
+                Some(25),
             )?;
             if !result {
                 //hopefulkly means we had enough tbp
@@ -143,7 +143,6 @@ fn run_relics(
                     autogui::RAutoGuiError::MissingTemplate => {
                         println!("No reserve trailblaze power. Terminating!");
                         std::process::exit(0)
-                        
                     }
                     _ => {
                         println!("Unknown error, reattempting ig");
@@ -153,13 +152,20 @@ fn run_relics(
             }
         }
         6 => {
-            let _ = autogui.click_with_pixel_check(&image, (1028, 730), (250, 250, 250), Some(5));
-            sleep(Duration::from_millis(400));
+            let _ = autogui.click_with_pixel_check(&image, (1028, 730), (250, 250, 250), Some(25));
+            sleep(Duration::from_millis(500));
         }
         7 => {
-            autogui.click_with_pixel_check(&image, (1050, 795), (250, 250, 250), Some(5))?;
+            autogui.click_with_pixel_check(&image, (1050, 795), (250, 250, 250), Some(25))?;
+            sleep(Duration::from_millis(500));
             let _ = autogui.rustautogui.left_click();
-            return Err(RAutoGuiError::JumpStage(4))
+        }
+        8 => {
+            autogui
+                .click_with_pixel_check(&image, (1170, 969), (226, 228, 229), Some(10))
+                .expect("no");
+            sleep(Duration::from_secs(3)); //load speed dependent
+            return Err(RAutoGuiError::JumpStage(2))
         }
         _ => {
             panic!("debug panic so stfu")
@@ -168,3 +174,12 @@ fn run_relics(
 
     Ok(())
 }
+// now that the games auto is battling
+// basically the bot will run cavern of corrosion until you run out of trailblaze power, so u pretty much dont have to do ur dailies
+// now we wait 
+// damn trhis is a good team
+
+// those messages here were from past recordings thats why they were talking about breaking lmao
+// i fixed it 
+// but yea it will keep looping
+// you get the point

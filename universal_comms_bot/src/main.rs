@@ -1,7 +1,7 @@
 use std::{
     io,
     process::exit,
-    sync::Arc,
+    sync::Arc, thread::sleep, time::Duration,
 };
 
 use crossbeam::channel::Receiver;
@@ -17,17 +17,21 @@ fn main() {
     // also since this is only screenreading i dont need to bother with multiple games open tbh
     // in retrospect a lot of this code can be refactored to take that into account lmao
     // gj me 
-    if check_for_league_and_return_managers(&mut managers).is_none() {
-        if check_for_valorant_and_return_managers(&mut managers).is_none() {
-            if check_for_star_rail_and_return_managers(&mut managers).is_none() {
-            }
-        }
-    }
+    check_for_league_and_return_managers(&mut managers);
+    check_for_valorant_and_return_managers(&mut managers);
+    check_for_star_rail_and_return_managers(&mut managers);
+
 
     if managers.len() == 0 {
         println!("No games found.");
         exit(0)
     }
+        if managers.len() > 1 {
+        println!("Multiple games found, continuing but its untested as to whether this works or not");
+        sleep(Duration::from_secs(5));
+        exit(0)
+    }
+
 
     let raw_screenshot_recv = screenshots::capture::spawn_screenshotting_thread();
     let mut channels = vec![];
