@@ -5,13 +5,15 @@ The (not so) long awaited sequel to my [Valorant Comms Bot](https://github.com/C
 
 A :fire:blazingly fast:fire: CV project to communicate with teammates in games.
 
+
+
 Notes
 
 ## League
 For league detection, please run the minimap at max size. Also if you dont have a 1080p monitor then erm gl bro
 Also u need to use (borderless) fullscreen
 
-TODO:
+## Functionality:
     
 ### League  
 - [x] Minimap pings when an enemy shows up in jungle
@@ -21,8 +23,5 @@ TODO:
 - [x] Enemy detection
 
 ### Honkai star rail
-This was added cuz I genuinely dont like valorant as much as I did when i wrote VCB  
-I needed to reach the hours lmao
-
 - [x] Divergent universe
-- [ ] Relic farming
+- [x] Relic farming

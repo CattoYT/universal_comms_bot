@@ -5,7 +5,7 @@ use crossbeam::channel::Receiver;
 use opencv::core::Mat;
 
 use crate::{
-    autogui::{self, RustAutoGuiHelper},
+    autogui::{self, RAutoGuiError, RustAutoGuiHelper},
     screenshots::frame::FrameData,
 };
 
@@ -16,6 +16,7 @@ pub fn spam_relics(consumer_recv: Receiver<Arc<FrameData>>) {
         autogui
             .load_templates(crate::autogui::Game::HSR(autogui::HSRMode::CoC))
             .expect("a");
+
         loop {
             let image = consumer_recv.recv().unwrap();
             if let Ok(image_mat) =
@@ -26,15 +27,19 @@ pub fn spam_relics(consumer_recv: Receiver<Arc<FrameData>>) {
                     Ok(_) => {
                         stage += 1;
                     }
-                    Err(e) => {
-                        
-                        if let autogui::RAutoGuiError::WaitPls = e {
-                            println!("Waiting 1 second...");
-                            sleep(Duration::from_secs(1));
-                        }else {
-                            println!("{e}");
+                    Err(e) => match e {
+                        autogui::RAutoGuiError::WaitPls(sleep_time) => {
+                            println!("Waiting {:?}econds...", sleep_time);
+                            sleep(sleep_time);
                         }
-                    }
+                        autogui::RAutoGuiError::JumpStage(jump_stage) => {
+                            stage = jump_stage;
+                            println!("Skipping to stage {jump_stage}");
+                        }
+                        _ => {
+                            println!("{e}")
+                        }
+                    },
                 }
             } else {
                 continue;
@@ -57,7 +62,7 @@ fn run_relics(
             //start challenge and enter team select
             autogui
                 .move_and_click_on_template("Challenge", true)
-                .unwrap(); //todo: see why this isnt clicking
+                .unwrap();
             sleep(Duration::from_millis(800));
         }
         1 => {
@@ -107,14 +112,54 @@ fn run_relics(
                 RustAutoGuiHelper::check_pixel_colour(&image, (1250, 965), (227, 228, 229), Some(5))
             {
                 if result {
-                    autogui.move_and_click((1250, 965));
+                    let _ = autogui.move_and_click((1250, 965));
                 } else {
-                    return Err(autogui::RAutoGuiError::WaitPls);
+                    return Err(autogui::RAutoGuiError::WaitPls(Duration::from_secs(3)));
                 }
             }
         }
-        4 => { //TODO: check the trailblaze power and then be able to select more hopefully
+        4 => {
+            //TODO: check the trailblaze power and then be able to select more hopefully
+            println!("Finish detected.");
+            let result = RustAutoGuiHelper::check_pixel_colour(
+                &image,
+                (1028, 730),
+                (226, 226, 226),
+                Some(5),
+            )?;
+            if !result {
+                //hopefulkly means we had enough tbp
+                return Err(autogui::RAutoGuiError::JumpStage(2));
+            } else {
+                return Ok(());
+            }
+        }
+        5 => {
+            //click on tbpower or fuel
 
+            match autogui.move_and_click_on_template("Trailblaze Power", false) {
+                Ok(_) => return Ok(()),
+                Err(e) => match e {
+                    autogui::RAutoGuiError::MissingTemplate => {
+                        println!("No reserve trailblaze power. Terminating!");
+                        std::process::exit(0)
+                        
+                    }
+                    _ => {
+                        println!("Unknown error, reattempting ig");
+                        return Err(e);
+                    }
+                },
+            }
+        }
+        6 => {
+            let _ = autogui.click_with_pixel_check(&image, (1028, 730), (250, 250, 250), Some(5));
+            sleep(Duration::from_millis(400));
+        }
+        7 => {
+            autogui.click_with_pixel_check(&image, (1050, 795), (250, 250, 250), Some(5))?;
+            let _ = autogui.rustautogui.left_click();
+            return Err(RAutoGuiError::JumpStage(4))
         }
         _ => {
             panic!("debug panic so stfu")

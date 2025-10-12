@@ -1,4 +1,8 @@
-use std::{fmt::{format, Display}, thread::sleep, time::Duration};
+use std::{
+    fmt::{Display, format},
+    thread::sleep,
+    time::Duration,
+};
 
 use opencv::core::{Mat, MatTraitConst, Vec4b};
 use rustautogui::{RustAutoGui, errors::AutoGuiError};
@@ -28,7 +32,9 @@ pub enum RAutoGuiError {
     WrongColour,
     AutoGuiError(AutoGuiError),
     OpenCVError(opencv::Error),
-    WaitPls, //todo: hold a duration probalby
+    WaitPls(Duration),
+    JumpStage(i32),
+    MissingTemplate,
 }
 
 impl From<AutoGuiError> for RAutoGuiError {
@@ -48,9 +54,12 @@ impl Display for RAutoGuiError {
             RAutoGuiError::WrongColour => write!(f, "The pixel was not the expected colour"),
             RAutoGuiError::AutoGuiError(e) => write!(f, "An AutoGui error occurred: {e}"),
             RAutoGuiError::OpenCVError(e) => write!(f, "An OpenCV error occurred: {e}"),
-            RAutoGuiError::WaitPls => write!(f, "Possibly fixable by sleep()")
+            RAutoGuiError::WaitPls(sleep_duration) => {
+                write!(f, "Request to sleep for {:?} time.", sleep_duration)
+            }
+            RAutoGuiError::JumpStage(stage) => write!(f, "Requesting a jump to stage: {stage}"),
+            RAutoGuiError::MissingTemplate => write!(f, "The requested template couldn't be found on screen"),
         }
-        
     }
 }
 
@@ -78,20 +87,26 @@ impl RustAutoGuiHelper {
         &mut self,
         template: &str,
         do_loop: bool,
-    ) -> Result<(), AutoGuiError> {
+    ) -> Result<(), RAutoGuiError> {
         if do_loop {
             self.rustautogui
-                .loop_find_stored_image_on_screen_and_move_mouse(0.6, 0.05, 180, template)?;
+                .loop_find_stored_image_on_screen_and_move_mouse(0.6, 0.05, 60, template)?;
             self.rustautogui.left_click().expect("an");
+            Ok(())
         } else {
-            self.rustautogui
+            let results = self
+                .rustautogui
                 .find_stored_image_on_screen_and_move_mouse(0.6, 0.05, template)?;
-            self.rustautogui.left_click().expect("an");
+            if results.iter().len() > 0 {
+                self.rustautogui.left_click().expect("an");
+                Ok(())
+            } else {
+                return Err(RAutoGuiError::MissingTemplate);
+            }
         }
-        Ok(())
     }
     pub fn move_and_click(&mut self, coords: (u32, u32)) -> Result<(), AutoGuiError> {
-        self.rustautogui.move_mouse_to_pos(coords.0, coords.1, 0.05);
+        let _ = self.rustautogui.move_mouse_to_pos(coords.0, coords.1, 0.05);
         self.rustautogui.left_click().expect("an");
         Ok(())
     }
@@ -180,8 +195,14 @@ impl RustAutoGuiHelper {
                     self.rustautogui.store_template_from_file(
                         "hsr_images/relics/challenge.png",
                         self.window_size,
-                        match_mode,
+                        match_mode.clone(),
                         "Challenge",
+                    )?;
+                    self.rustautogui.store_template_from_file(
+                        "hsr_images/relics/Trailblazepower.png",
+                        self.window_size,
+                        match_mode.clone(),
+                        "Trailblaze Power",
                     )?;
                 }
             },
