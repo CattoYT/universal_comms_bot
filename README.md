@@ -1,5 +1,6 @@
 # Universal Comms Bot
 ![](https://hackatime-badge.hackclub.com/U0786TENDM5/universal_comms_bot)
+![](https://hackatime-badge.hackclub.com/U0786TENDM5/universal_comms_Bot)
 
 The (not so) long awaited sequel to my [Valorant Comms Bot](https://github.com/CattoYT/ValorantCommsBot), Universal Comms Bot! (someone dm me a better name PLEASE)
 
