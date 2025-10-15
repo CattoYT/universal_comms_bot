@@ -2,6 +2,8 @@
 ![](https://hackatime-badge.hackclub.com/U0786TENDM5/universal_comms_bot)
 ![](https://hackatime-badge.hackclub.com/U0786TENDM5/universal_comms_Bot)
 
+![Divergent universe demo](https://github.com/CattoYT/universal_comms_bot/raw/b0de53a0684a3e00bcbb3f82ad6fd985ee98bbe5/images/Demos/divergent%20universe.mp4)
+
 The (not so) long awaited sequel to my [Valorant Comms Bot](https://github.com/CattoYT/ValorantCommsBot), Universal Comms Bot! (someone dm me a better name PLEASE)
 
 A :fire:blazingly fast:fire: CV project to communicate with teammates in games.
