@@ -2,7 +2,7 @@
 ![](https://hackatime-badge.hackclub.com/U0786TENDM5/universal_comms_bot)
 ![](https://hackatime-badge.hackclub.com/U0786TENDM5/universal_comms_Bot)
 
-![Divergent universe demo](https://github.com/CattoYT/universal_comms_bot/raw/b0de53a0684a3e00bcbb3f82ad6fd985ee98bbe5/images/Demos/divergent%20universe.mp4)
+
 
 The (not so) long awaited sequel to my [Valorant Comms Bot](https://github.com/CattoYT/ValorantCommsBot), Universal Comms Bot! (someone dm me a better name PLEASE)
 
@@ -20,6 +20,12 @@ For valorant, pray it works
 
 
 ## Functionality:
+
+![Divergent universe demo](https://github.com/CattoYT/universal_comms_bot/raw/b0de53a0684a3e00bcbb3f82ad6fd985ee98bbe5/images/Demos/divergent%20universe.mp4)  
+![Relics demo](https://github.com/CattoYT/universal_comms_bot/raw/refs/heads/main/images/Demos/relics.mp4)  
+![Valorant demo](https://github.com/CattoYT/universal_comms_bot/raw/refs/heads/main/images/Demos/valorant.mp4)  
+![League demo](https://github.com/CattoYT/universal_comms_bot/raw/refs/heads/main/images/Demos/2025-10-07%2020-45-45.mp4)  
+
     
 ### League  
 - [x] Minimap pings when an enemy shows up in jungle
